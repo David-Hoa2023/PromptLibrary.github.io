@@ -52,20 +52,20 @@ const PromptLibrary = () => {
 
   const savePrompt = async (updatedPrompt) => {
     let newPrompts;
-    if (editingPrompt.id) {
+    if (prompts.some(p => p.id === updatedPrompt.id)) {
       newPrompts = prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p);
     } else {
       newPrompts = [...prompts, updatedPrompt];
     }
-    setPrompts(newPrompts);
-
+    
     // Update tags
     const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
-    setTags(newTags);
 
     try {
       await saveData('prompts', newPrompts);
       await saveData('tags', newTags);
+      setPrompts(newPrompts);
+      setTags(newTags);
       setEditingPrompt(null);
     } catch (err) {
       setError('Failed to save prompt. Please try again.');
