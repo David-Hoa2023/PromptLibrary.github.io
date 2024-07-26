@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { saveData, getAllData } from './database';
+import { PlusCircle } from 'lucide-react';
 
 const PromptLibrary = () => {
   const [categories, setCategories] = useState([]);
