@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import PromptLibrary from './PromptLibrary';
-import { getAllData } from './database';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadInitialData = async () => {
-      await getAllData(); // This ensures the database is initialized
+    // Simulate initialization
+    setTimeout(() => {
       setIsLoading(false);
-    };
-    loadInitialData();
+    }, 2000);
   }, []);
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -19,6 +22,7 @@ function App() {
 
   return (
     <div className="App">
+      <h1>Prompt Library</h1>
       <PromptLibrary />
     </div>
   );
