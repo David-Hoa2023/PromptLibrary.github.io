@@ -51,12 +51,21 @@ const PromptLibrary = () => {
   };
 
   const savePrompt = async (updatedPrompt) => {
-    const newPrompts = editingPrompt.id
-      ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
-      : [...prompts, updatedPrompt];
+    let newPrompts;
+    if (editingPrompt.id) {
+      newPrompts = prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p);
+    } else {
+      newPrompts = [...prompts, updatedPrompt];
+    }
     setPrompts(newPrompts);
+
+    // Update tags
+    const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+    setTags(newTags);
+
     try {
       await saveData('prompts', newPrompts);
+      await saveData('tags', newTags);
       setEditingPrompt(null);
     } catch (err) {
       setError('Failed to save prompt. Please try again.');
@@ -203,7 +212,7 @@ const PromptLibrary = () => {
                 value={editingPrompt.tags.join(', ')}
                 onChange={(e) => setEditingPrompt({
                   ...editingPrompt, 
-                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                  tags: e.target.value.split(',').map(tag => tag.trim().startsWith('#') ? tag.trim() : `#${tag.trim()}`).filter(tag => tag)
                 })}
               />
             </div>
