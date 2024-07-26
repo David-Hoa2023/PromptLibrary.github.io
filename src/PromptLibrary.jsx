@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { PlusCircle, X } from 'lucide-react';
 import { saveData, getAllData } from './database';
 
+// Function to generate a random pastel color
+const getRandomPastelColor = () => {
+  const hue = Math.floor(Math.random() * 360);
+  return `hsl(${hue}, 70%, 80%)`;
+};
+
+// Function to determine if text should be dark or light based on background color
+const getContrastColor = (bgColor) => {
+  const rgb = bgColor.match(/\d+/g);
+  const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+  return brightness > 128 ? 'text-gray-800' : 'text-white';
+};
+
 const PromptLibrary = () => {
   const [categories, setCategories] = useState([]);
   const [prompts, setPrompts] = useState([]);
@@ -158,22 +171,27 @@ const PromptLibrary = () => {
           </button>
         </div>
         <div className="grid grid-cols-3 gap-4">
-          {filteredPrompts.map(prompt => (
-            <div 
-              key={prompt.id} 
-              className="bg-white p-4 rounded shadow-md cursor-pointer"
-              onClick={() => setEditingPrompt(prompt)}
-            >
-              <h3 className="font-bold mb-2">{prompt.name}</h3>
-              <p className="text-sm text-gray-600 mb-2 line-clamp-3">
-                {prompt.content.slice(0, 100)}
-                {prompt.content.length > 100 && '...'}
-              </p>
-              <div className="text-right text-xs text-gray-400">
-                {prompt.category}
+          {filteredPrompts.map(prompt => {
+            const bgColor = getRandomPastelColor();
+            const textColor = getContrastColor(bgColor);
+            return (
+              <div 
+                key={prompt.id} 
+                className={`p-4 rounded shadow-md cursor-pointer ${textColor}`}
+                style={{ backgroundColor: bgColor }}
+                onClick={() => setEditingPrompt(prompt)}
+              >
+                <h3 className="font-bold mb-2">{prompt.name}</h3>
+                <p className="text-sm mb-2 line-clamp-3">
+                  {prompt.content.slice(0, 100)}
+                  {prompt.content.length > 100 && '...'}
+                </p>
+                <div className="text-right text-xs opacity-75">
+                  {prompt.category}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
