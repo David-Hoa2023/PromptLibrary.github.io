@@ -15,6 +15,18 @@ exports.handler = async function(event, context) {
     const database = client.db('promptLibrary');
     const collection = database.collection('data');
 
+    // Check if collection is empty and add initial data if it is
+    const count = await collection.countDocuments();
+    if (count === 0) {
+      console.log('Collection is empty. Adding initial data.');
+      await collection.insertMany([
+        { key: 'categories', value: ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'] },
+        { key: 'prompts', value: [] },
+        { key: 'tags', value: [] }
+      ]);
+      console.log('Initial data added.');
+    }
+
     console.log('Fetching data from collection');
     const data = await collection.find({}).toArray();
     console.log('Data fetched:', data);
