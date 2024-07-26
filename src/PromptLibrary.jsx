@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, X } from 'lucide-react';
 import { saveData, getAllData } from './database';
 
 const PromptLibrary = () => {
@@ -8,6 +8,7 @@ const PromptLibrary = () => {
   const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [editingPrompt, setEditingPrompt] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -38,8 +39,28 @@ const PromptLibrary = () => {
     }
   };
 
-  const addPrompt = async () => {
-    // Implementation for adding a new prompt
+  const addPrompt = () => {
+    const newPrompt = {
+      id: Date.now(),
+      name: 'New Prompt',
+      category: categories[1],
+      content: '',
+      tags: []
+    };
+    setEditingPrompt(newPrompt);
+  };
+
+  const savePrompt = async (updatedPrompt) => {
+    const newPrompts = editingPrompt.id
+      ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
+      : [...prompts, updatedPrompt];
+    setPrompts(newPrompts);
+    try {
+      await saveData('prompts', newPrompts);
+      setEditingPrompt(null);
+    } catch (err) {
+      setError('Failed to save prompt. Please try again.');
+    }
   };
 
   const toggleCategory = (category) => {
@@ -117,7 +138,7 @@ const PromptLibrary = () => {
       </div>
 
       {/* Right section */}
-      <div className="w-3/4 p-4 bg-gray-100">
+      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
           <button 
@@ -132,9 +153,13 @@ const PromptLibrary = () => {
             <div 
               key={prompt.id} 
               className="bg-white p-4 rounded shadow-md cursor-pointer"
+              onClick={() => setEditingPrompt(prompt)}
             >
               <h3 className="font-bold mb-2">{prompt.name}</h3>
-              <p className="text-sm text-gray-600 mb-2 line-clamp-3">{prompt.content}</p>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-3">
+                {prompt.content.slice(0, 100)}
+                {prompt.content.length > 100 && '...'}
+              </p>
               <div className="text-right text-xs text-gray-400">
                 {prompt.category}
               </div>
@@ -142,6 +167,55 @@ const PromptLibrary = () => {
           ))}
         </div>
       </div>
+
+      {/* Full-screen edit modal */}
+      {editingPrompt && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg w-2/3 h-2/3 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <input 
+                className="text-xl font-bold"
+                value={editingPrompt.name}
+                onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
+              />
+              <button onClick={() => setEditingPrompt(null)}>
+                <X size={24} />
+              </button>
+            </div>
+            <select 
+              className="mb-4 p-2 border rounded"
+              value={editingPrompt.category}
+              onChange={(e) => setEditingPrompt({...editingPrompt, category: e.target.value})}
+            >
+              {categories.slice(1).map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <textarea 
+              className="flex-grow p-2 border rounded resize-none mb-4"
+              value={editingPrompt.content}
+              onChange={(e) => setEditingPrompt({...editingPrompt, content: e.target.value})}
+            />
+            <div className="mb-4">
+              <input 
+                className="p-2 border rounded w-full"
+                placeholder="Add tags (comma-separated)"
+                value={editingPrompt.tags.join(', ')}
+                onChange={(e) => setEditingPrompt({
+                  ...editingPrompt, 
+                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                })}
+              />
+            </div>
+            <button 
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => savePrompt(editingPrompt)}
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
