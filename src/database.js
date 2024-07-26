@@ -1,28 +1,33 @@
 const API_URL = '/.netlify/functions';
 
 export const saveData = async (key, value) => {
-  const response = await fetch(`${API_URL}/saveData`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ key, value }),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save data');
+  try {
+    const response = await fetch(`${API_URL}/saveData`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key, value }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error in saveData:', error);
+    throw error;
   }
-  return response.json();
 };
 
 export const getAllData = async () => {
-  const response = await fetch(`${API_URL}/getData`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch data');
+  try {
+    const response = await fetch(`${API_URL}/getData`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error in getAllData:', error);
+    throw error;
   }
-  return response.json();
-};
-
-export const getData = async (key) => {
-  const allData = await getAllData();
-  return allData[key];
 };
