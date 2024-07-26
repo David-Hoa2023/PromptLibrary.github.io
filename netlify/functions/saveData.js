@@ -37,6 +37,6 @@ exports.handler = async function(event, context) {
       body: JSON.stringify({ error: error.message, stack: error.stack }) 
     };
   } finally {
-    if (connection) await connection.close();
+    if (connection) await client.close();
   }
 };
