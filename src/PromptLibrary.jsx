@@ -2,17 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { PlusCircle, X } from 'lucide-react';
 import { saveData, getAllData } from './database';
 
-// Function to generate a random pastel color
-const getRandomPastelColor = () => {
+// Function to generate a random light pastel color
+const getLightPastelColor = () => {
   const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 70%, 80%)`;
-};
-
-// Function to determine if text should be dark or light based on background color
-const getContrastColor = (bgColor) => {
-  const rgb = bgColor.match(/\d+/g);
-  const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-  return brightness > 128 ? 'text-gray-800' : 'text-white';
+  return `hsl(${hue}, 70%, 90%)`; // Increased lightness to 90%
 };
 
 const PromptLibrary = () => {
@@ -172,12 +165,11 @@ const PromptLibrary = () => {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {filteredPrompts.map(prompt => {
-            const bgColor = getRandomPastelColor();
-            const textColor = getContrastColor(bgColor);
+            const bgColor = getLightPastelColor();
             return (
               <div 
                 key={prompt.id} 
-                className={`p-4 rounded shadow-md cursor-pointer ${textColor}`}
+                className="p-4 rounded shadow-md cursor-pointer text-gray-800"
                 style={{ backgroundColor: bgColor }}
                 onClick={() => setEditingPrompt(prompt)}
               >
