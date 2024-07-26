@@ -9,6 +9,7 @@ exports.handler = async function(event, context) {
 
   try {
     console.log('Attempting to connect to MongoDB');
+    console.log('MongoDB URI:', uri.replace(/:([^:@]{1,})@/, ':****@')); // Log URI with password masked
     connection = await client.connect();
     console.log('Connected to MongoDB');
 
@@ -17,19 +18,21 @@ exports.handler = async function(event, context) {
 
     // Check if collection is empty and add initial data if it is
     const count = await collection.countDocuments();
+    console.log('Document count:', count);
     if (count === 0) {
       console.log('Collection is empty. Adding initial data.');
-      await collection.insertMany([
+      const initialData = [
         { key: 'categories', value: ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'] },
         { key: 'prompts', value: [] },
         { key: 'tags', value: [] }
-      ]);
-      console.log('Initial data added.');
+      ];
+      const insertResult = await collection.insertMany(initialData);
+      console.log('Initial data added. Insert result:', insertResult);
     }
 
     console.log('Fetching data from collection');
     const data = await collection.find({}).toArray();
-    console.log('Data fetched:', data);
+    console.log('Data fetched:', JSON.stringify(data, null, 2));
 
     const result = data.reduce((acc, item) => {
       acc[item.key] = item.value;
@@ -42,11 +45,19 @@ exports.handler = async function(event, context) {
     };
   } catch (error) {
     console.error('Error in getData:', error);
+    console.error('Error stack:', error.stack);
     return { 
       statusCode: 500, 
-      body: JSON.stringify({ error: error.message, stack: error.stack }) 
+      body: JSON.stringify({ 
+        error: error.message, 
+        stack: error.stack,
+        mongodbUri: uri ? 'Set' : 'Not set'
+      }) 
     };
   } finally {
-    if (connection) await client.close();
+    if (connection) {
+      console.log('Closing MongoDB connection');
+      await connection.close();
+    }
   }
 };
