@@ -42,6 +42,8 @@ export const saveData = async (key, value) => {
   try {
     console.log(`Saving data for key: ${key}`, value);
     const token = user.token.access_token;
+    console.log('User token:', token.slice(0, 10) + '...'); // Log part of the token for debugging
+
     const response = await fetch('/.netlify/functions/saveData', {
       method: 'POST',
       headers: {
@@ -51,13 +53,15 @@ export const saveData = async (key, value) => {
       body: JSON.stringify({ key, value }),
     });
 
+    console.log('Response status:', response.status);
+    const responseText = await response.text();
+    console.log('Response text:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('saveData error:', response.status, errorText);
-      throw new Error(`Failed to save data: ${response.status} ${errorText}`);
+      throw new Error(`Failed to save data: ${response.status} ${responseText}`);
     }
 
-    const result = await response.json();
+    const result = JSON.parse(responseText);
     console.log('saveData response:', result);
     return result;
   } catch (error) {
