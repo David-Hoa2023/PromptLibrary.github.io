@@ -1,24 +1,38 @@
 const { MongoClient } = require('mongodb');
+const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
   console.log('saveData function called');
   console.log('Event headers:', event.headers);
-  console.log('Client context:', context.clientContext);
 
   const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
   try {
-    // Check if the user is authenticated
-    if (!context.clientContext.user) {
-      console.log('No authenticated user');
+    // Manually verify the token
+    const authHeader = event.headers.authorization;
+    if (!authHeader) {
+      console.log('No authorization header');
       return { 
         statusCode: 401, 
-        body: JSON.stringify({ error: 'Unauthorized', details: 'No user context' }) 
+        body: JSON.stringify({ error: 'Unauthorized', details: 'No authorization header' }) 
       };
     }
 
-    const userId = context.clientContext.user.sub;
-    console.log('Authenticated user:', userId);
+    const token = authHeader.split(' ')[1];
+    const response = await fetch(`${process.env.URL}/.netlify/identity/user`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      console.log('Invalid token');
+      return { 
+        statusCode: 401, 
+        body: JSON.stringify({ error: 'Unauthorized', details: 'Invalid token' }) 
+      };
+    }
+
+    const user = await response.json();
+    console.log('Authenticated user:', user.id);
 
     await client.connect();
     console.log('Connected to MongoDB');
@@ -29,7 +43,7 @@ exports.handler = async (event, context) => {
     console.log('Saving data:', { key, value });
 
     await collection.updateOne(
-      { userId: userId, key: key },
+      { userId: user.id, key: key },
       { $set: { value: value } },
       { upsert: true }
     );
