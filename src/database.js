@@ -36,12 +36,12 @@ export const getData = async () => {
 };
 
 export const saveData = async (key, value) => {
-  const user = getCurrentUser();
+  const user = netlifyIdentity.currentUser();
   if (!user) throw new Error('No user logged in');
 
   try {
     console.log(`Saving data for key: ${key}`, value);
-    const token = await user.jwt();  // Get the user's JWT token
+    const token = user.token.access_token;
     const response = await fetch('/.netlify/functions/saveData', {
       method: 'POST',
       headers: {
