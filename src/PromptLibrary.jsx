@@ -145,12 +145,24 @@ const PromptLibrary = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {error && (
-        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-2 text-center">
-          {error}
-        </div>
-      )}
+    // <div className="flex h-screen bg-gray-100">
+    //   {error && (
+    //     <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-2 text-center">
+    //       {error}
+    //     </div>
+    //   )}
+       <div className="flex h-screen bg-gray-100">
+          {error && (
+            <div className="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 text-center z-50">
+              <p>Error: {error}</p>
+              <button 
+                onClick={() => setError(null)}
+                className="mt-2 bg-white text-red-500 px-4 py-2 rounded hover:bg-red-100"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
       
       {/* Authentication buttons */}
       <div className="absolute top-4 right-4 flex gap-2">
