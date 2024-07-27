@@ -40,6 +40,7 @@ export const saveData = async (key, value) => {
   if (!user) throw new Error('No user logged in');
 
   try {
+    console.log(`Saving data for key: ${key}`, value);
     const response = await fetch('/.netlify/functions/saveData', {
       method: 'POST',
       headers: {
