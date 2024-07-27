@@ -84,7 +84,7 @@ const PromptLibrary = () => {
     }
   };
 
-  const addPrompt = () => {
+  const addPrompt = async () => {
     setEditingPrompt({
       id: Date.now(),
       name: '',
@@ -95,20 +95,20 @@ const PromptLibrary = () => {
     setIsAddingPrompt(true);
   };
 
-  const deleteCategory = async (category) => {
-    if (category === 'All') return;
-    const newCategories = categories.filter(c => c !== category);
-    const newPrompts = prompts.filter(p => p.category !== category);
-    try {
-      await saveData('categories', newCategories);
-      await saveData('prompts', newPrompts);
-      setCategories(newCategories);
-      setPrompts(newPrompts);
-    } catch (err) {
-      console.error('Delete category error:', err);
-      setError('Failed to delete category. Please try again.');
-    }
-  };
+  // const deleteCategory = async (category) => {
+  //   if (category === 'All') return;
+  //   const newCategories = categories.filter(c => c !== category);
+  //   const newPrompts = prompts.filter(p => p.category !== category);
+  //   try {
+  //     await saveData('categories', newCategories);
+  //     await saveData('prompts', newPrompts);
+  //     setCategories(newCategories);
+  //     setPrompts(newPrompts);
+  //   } catch (err) {
+  //     console.error('Delete category error:', err);
+  //     setError('Failed to delete category. Please try again.');
+  //   }
+  // };
 
   const deleteTag = async (tagToDelete) => {
     const newTags = tags.filter(tag => tag !== tagToDelete);
