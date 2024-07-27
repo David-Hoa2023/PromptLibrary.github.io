@@ -2,13 +2,12 @@ const { MongoClient } = require('mongodb');
 
 exports.handler = async (event, context) => {
   console.log('getData function called');
-  console.log('Event headers:', event.headers);
-  console.log('Client context:', context.clientContext);
+  console.log('Event headers:', JSON.stringify(event.headers));
+  console.log('Client context:', JSON.stringify(context.clientContext));
 
   const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
   try {
-    // Check if the user is authenticated
     if (!event.headers.authorization) {
       console.log('No authorization header');
       return { 
@@ -20,9 +19,15 @@ exports.handler = async (event, context) => {
     const token = event.headers.authorization.split(' ')[1];
     console.log('Received token:', token.slice(0, 10) + '...');
 
-    // Here you would typically verify the JWT token
-    // For now, we'll assume if a token is present, the user is authenticated
-    const userId = context.clientContext.user ? context.clientContext.user.sub : 'unknown';
+    if (!context.clientContext || !context.clientContext.user) {
+      console.log('No user context');
+      return { 
+        statusCode: 401, 
+        body: JSON.stringify({ error: 'Unauthorized', details: 'No user context' }) 
+      };
+    }
+
+    const userId = context.clientContext.user.sub;
     console.log('User ID:', userId);
 
     await client.connect();
@@ -31,14 +36,14 @@ exports.handler = async (event, context) => {
     const collection = database.collection('userData');
 
     const data = await collection.find({ userId: userId }).toArray();
-    console.log('Data fetched:', data);
+    console.log('Data fetched:', JSON.stringify(data));
 
     const result = data.reduce((acc, item) => {
       acc[item.key] = item.value;
       return acc;
     }, {});
 
-    console.log('Formatted result:', result);
+    console.log('Formatted result:', JSON.stringify(result));
 
     return {
       statusCode: 200,
@@ -48,7 +53,7 @@ exports.handler = async (event, context) => {
     console.error('Error in getData:', error);
     return { 
       statusCode: 500, 
-      body: JSON.stringify({ error: 'Failed to fetch data', details: error.message }) 
+      body: JSON.stringify({ error: 'Failed to fetch data', details: error.message, stack: error.stack }) 
     };
   } finally {
     await client.close();
