@@ -50,6 +50,7 @@ const PromptLibrary = () => {
 
   const loadData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const data = await getData();
       console.log('Loaded data:', data);
@@ -58,11 +59,13 @@ const PromptLibrary = () => {
       setTags(data.tags || []);
     } catch (err) {
       console.error('Load data error:', err);
-      setError('Failed to load data. Please try again later.');
+      setError(`Failed to load data: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
   };
+
+
 
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
