@@ -6,5 +6,7 @@
 [functions]
   node_bundler = "esbuild"
 
-[template.environment]
-  JWT_SECRET = "KJnkgjsfdkh898346374736jkgdfgdjk"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
