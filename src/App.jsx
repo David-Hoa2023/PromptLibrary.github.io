@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import PromptLibrary from './PromptLibrary';
 
+import React from 'react';
+import ErrorBoundary from './ErrorBoundary';
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <div className="App">
+        <PromptLibrary />
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+export default App;
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
