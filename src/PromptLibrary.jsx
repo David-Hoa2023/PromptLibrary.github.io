@@ -91,32 +91,32 @@ const PromptLibrary = () => {
     setIsAddingPrompt(true);
   };
 
-  const savePrompt = async (updatedPrompt) => {
-    console.log('Saving prompt:', updatedPrompt);
-    if (!updatedPrompt.name.trim() || !updatedPrompt.category.trim() || !updatedPrompt.content.trim()) {
-      setError('Please fill in all fields');
-      return;
-    }
-    const newPrompts = prompts.some(p => p.id === updatedPrompt.id)
-      ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
-      : [...prompts, updatedPrompt];
-    
-    const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+ const savePrompt = async (updatedPrompt) => {
+  console.log('Saving prompt:', updatedPrompt);
+  if (!updatedPrompt.name.trim() || !updatedPrompt.category.trim() || !updatedPrompt.content.trim()) {
+    setError('Please fill in all fields');
+    return;
+  }
+  const newPrompts = prompts.some(p => p.id === updatedPrompt.id)
+    ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
+    : [...prompts, updatedPrompt];
   
-    try {
-      console.log('Saving prompts:', newPrompts);
-      await saveData('prompts', newPrompts);
-      console.log('Saving tags:', newTags);
-      await saveData('tags', newTags);
-      setPrompts(newPrompts);
-      setTags(newTags);
-      setEditingPrompt(null);
-      setIsAddingPrompt(false);
-    } catch (error) {
-      console.error('Save prompt error:', error);
-      setError(`Failed to save prompt: ${error.message}`);
-    }
-  };
+  const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+
+  try {
+    console.log('Saving prompts:', newPrompts);
+    await saveData('prompts', newPrompts);
+    console.log('Saving tags:', newTags);
+    await saveData('tags', newTags);
+    setPrompts(newPrompts);
+    setTags(newTags);
+    setEditingPrompt(null);
+    setIsAddingPrompt(false);
+  } catch (error) {
+    console.error('Save prompt error:', error);
+    setError(`Failed to save prompt: ${error.message}`);
+  }
+};
 
   const toggleCategory = (category) => {
     if (category === 'All') {
