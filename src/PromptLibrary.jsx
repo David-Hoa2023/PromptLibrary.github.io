@@ -175,7 +175,7 @@ const PromptLibrary = () => {
           </div>
 
           {/* Right section */}
-          <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+{/*           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
             <div className="flex justify-between items-center mb-4 mt-16">
               <h2 className="text-xl font-bold">Prompt</h2>
               <div className="flex gap-2">
@@ -229,11 +229,11 @@ const PromptLibrary = () => {
                 );
               })}
             </div>
-          </div>
+          </div> */}
 
 
           
-{/*           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+          <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Prompt</h2>
               <button 
@@ -265,7 +265,7 @@ const PromptLibrary = () => {
                 );
               })}
             </div>
-          </div> */}
+          </div>
         </>
       ) : (
         <div className="w-full flex items-center justify-center">
