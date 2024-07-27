@@ -44,7 +44,7 @@ export const saveData = async (key, value) => {
 };
 
 export const getData = async () => {
-  const user = getCurrentUser();
+  const user = netlifyIdentity.currentUser();
   if (!user) throw new Error('No user logged in');
 
   try {
