@@ -73,14 +73,73 @@ const PromptLibrary = () => {
     }
   }, [user]);
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.on('init', user => {
+      setUser(user);
+      if (user) {
+        loadData();
+      } else {
+        setIsLoading(false);
+      }
+    });
+    netlifyIdentity.on('login', user => {
+      setUser(user);
+      loadData();
+    });
+    netlifyIdentity.on('logout', () => {
+      setUser(null);
+      setIsLoading(false);
+    });
+    netlifyIdentity.init();
+
+    return () => {
+      netlifyIdentity.off('init');
+      netlifyIdentity.off('login');
+      netlifyIdentity.off('logout');
+    };
+  }, []);
+
   const loadData = async () => {
+    setIsLoading(true);
     try {
       const data = await getAllData();
+      console.log('Loaded data:', data);
       setCategories(data.categories || ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
       setPrompts(data.prompts || []);
       setTags(data.tags || []);
     } catch (err) {
+      console.error('Load data error:', err);
       setError('Failed to load data. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const savePrompt = async (updatedPrompt) => {
+    console.log('Saving prompt:', updatedPrompt);
+    if (!updatedPrompt.name.trim() || !updatedPrompt.category.trim() || !updatedPrompt.content.trim()) {
+      setError('Please fill in all fields');
+      return;
+    }
+    const newPrompts = prompts.some(p => p.id === updatedPrompt.id)
+      ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
+      : [...prompts, { ...updatedPrompt, id: Date.now() }];
+    
+    const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+
+    try {
+      await saveData('prompts', newPrompts);
+      await saveData('tags', newTags);
+      setPrompts(newPrompts);
+      setTags(newTags);
+      setEditingPrompt(null);
+      setIsAddingPrompt(false);
+    } catch (error) {
+      console.error('Save prompt error:', error);
+      setError('Failed to save prompt. Please try again.');
     }
   };
 
@@ -370,4 +429,12 @@ const PromptLibrary = () => {
   );
 };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    // ... rest of the component
+  );
+};
 export default PromptLibrary;
