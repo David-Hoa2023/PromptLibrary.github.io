@@ -378,6 +378,22 @@ const PromptLibrary = () => {
                   placeholder="Prompt Content"
                 />
                 <div className="mb-4">
+              <input 
+                className="p-2 border rounded w-full"
+                placeholder="Add tags (comma-separated)"
+                value={editingPrompt.tags.join(', ')}
+                onChange={(e) => setEditingPrompt({
+                  ...editingPrompt, 
+                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                })}
+              />
+            </div>
+            <button 
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => updatePrompt(editingPrompt)}
+            >
+              Save Changes
+{/*                 <div className="mb-4">
                   <p className="mb-2">Select Tags:</p>
                   <div className="flex flex-wrap gap-2">
                     {tags.map(tag => (
@@ -407,7 +423,8 @@ const PromptLibrary = () => {
                 </button>
               </div>
             </div>
-          )}
+          )} */}
+                
 
           {/* ... (keep the existing edit modal) */}
         </>
