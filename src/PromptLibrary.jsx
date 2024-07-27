@@ -176,6 +176,64 @@ const PromptLibrary = () => {
 
           {/* Right section */}
           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 mt-16">
+              <h2 className="text-xl font-bold">Prompt</h2>
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                  accept=".json"
+                />
+                <button 
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <Upload className="mr-2" size={20} />
+                  Upload JSON
+                </button>
+                <button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  onClick={addPrompt}
+                >
+                  Prompt mới
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              {filteredPrompts.map(prompt => {
+                const bgColor = getLightPastelColor();
+                return (
+                  <div 
+                    key={prompt.id} 
+                    className="p-4 rounded shadow-md cursor-pointer text-gray-800 relative"
+                    style={{ backgroundColor: bgColor }}
+                  >
+                    <Trash2
+                      size={18}
+                      className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                      onClick={() => setShowDeleteConfirm({ type: 'prompt', item: prompt })}
+                    />
+                    <div onClick={() => setEditingPrompt(prompt)}>
+                      <h3 className="font-bold mb-2">{prompt.name}</h3>
+                      <p className="text-sm mb-2 line-clamp-3">
+                        {prompt.content.slice(0, 100)}
+                        {prompt.content.length > 100 && '...'}
+                      </p>
+                      <div className="text-right text-xs opacity-75">
+                        {prompt.category}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+
+          
+{/*           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Prompt</h2>
               <button 
@@ -207,7 +265,7 @@ const PromptLibrary = () => {
                 );
               })}
             </div>
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="w-full flex items-center justify-center">
