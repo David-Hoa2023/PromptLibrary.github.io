@@ -4,12 +4,13 @@ export const getCurrentUser = () => {
   return netlifyIdentity.currentUser();
 };
 
-export const getAllData = async () => {
+export const getData = async () => {
   const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
 
   try {
-    const response = await fetch('/.netlify/functions/getAllData', {
+    console.log('Fetching data for user:', user.email);
+    const response = await fetch('/.netlify/functions/getData', {
       headers: {
         'Authorization': 'Bearer ' + user.token.access_token,
       },
@@ -17,15 +18,15 @@ export const getAllData = async () => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('getAllData error:', response.status, errorText);
+      console.error('getData error:', response.status, errorText);
       throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('getAllData response:', data);
+    console.log('getData response:', data);
     return data;
   } catch (error) {
-    console.error('Error in getAllData:', error);
+    console.error('Error in getData:', error);
     throw error;
   }
 };
