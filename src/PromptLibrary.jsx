@@ -110,64 +110,64 @@ const PromptLibrary = () => {
   //   }
   // };
 
-  const deleteTag = async (tagToDelete) => {
-    const newTags = tags.filter(tag => tag !== tagToDelete);
-    const newPrompts = prompts.map(prompt => ({
-      ...prompt,
-      tags: prompt.tags.filter(tag => tag !== tagToDelete)
-    }));
-    try {
-      await saveData('tags', newTags);
-      await saveData('prompts', newPrompts);
-      setTags(newTags);
-      setPrompts(newPrompts);
-    } catch (err) {
-      console.error('Delete tag error:', err);
-      setError('Failed to delete tag. Please try again.');
-    }
-  };
+  // const deleteTag = async (tagToDelete) => {
+  //   const newTags = tags.filter(tag => tag !== tagToDelete);
+  //   const newPrompts = prompts.map(prompt => ({
+  //     ...prompt,
+  //     tags: prompt.tags.filter(tag => tag !== tagToDelete)
+  //   }));
+  //   try {
+  //     await saveData('tags', newTags);
+  //     await saveData('prompts', newPrompts);
+  //     setTags(newTags);
+  //     setPrompts(newPrompts);
+  //   } catch (err) {
+  //     console.error('Delete tag error:', err);
+  //     setError('Failed to delete tag. Please try again.');
+  //   }
+  // };
 
-  const deletePrompt = async (promptId) => {
-    const newPrompts = prompts.filter(p => p.id !== promptId);
-    try {
-      await saveData('prompts', newPrompts);
-      setPrompts(newPrompts);
-    } catch (err) {
-      console.error('Delete prompt error:', err);
-      setError('Failed to delete prompt. Please try again.');
-    }
-  };
+  // const deletePrompt = async (promptId) => {
+  //   const newPrompts = prompts.filter(p => p.id !== promptId);
+  //   try {
+  //     await saveData('prompts', newPrompts);
+  //     setPrompts(newPrompts);
+  //   } catch (err) {
+  //     console.error('Delete prompt error:', err);
+  //     setError('Failed to delete prompt. Please try again.');
+  //   }
+  // };
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const json = JSON.parse(e.target.result);
-          const newPrompts = json.map(item => ({
-            id: Date.now() + Math.random(),
-            name: item['Mô tả'].slice(0, 50) + '...',
-            category: 'Uploaded',
-            content: `Mô tả: ${item['Mô tả']}\n\nVí dụ: ${item['Ví dụ']}`,
-            tags: []
-          }));
-          const updatedPrompts = [...prompts, ...newPrompts];
-          await saveData('prompts', updatedPrompts);
-          setPrompts(updatedPrompts);
-          if (!categories.includes('Uploaded')) {
-            const newCategories = [...categories, 'Uploaded'];
-            await saveData('categories', newCategories);
-            setCategories(newCategories);
-          }
-        } catch (err) {
-          console.error('File upload error:', err);
-          setError('Failed to upload file. Please ensure it\'s a valid JSON.');
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
+  // const handleFileUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = async (e) => {
+  //       try {
+  //         const json = JSON.parse(e.target.result);
+  //         const newPrompts = json.map(item => ({
+  //           id: Date.now() + Math.random(),
+  //           name: item['Mô tả'].slice(0, 50) + '...',
+  //           category: 'Uploaded',
+  //           content: `Mô tả: ${item['Mô tả']}\n\nVí dụ: ${item['Ví dụ']}`,
+  //           tags: []
+  //         }));
+  //         const updatedPrompts = [...prompts, ...newPrompts];
+  //         await saveData('prompts', updatedPrompts);
+  //         setPrompts(updatedPrompts);
+  //         if (!categories.includes('Uploaded')) {
+  //           const newCategories = [...categories, 'Uploaded'];
+  //           await saveData('categories', newCategories);
+  //           setCategories(newCategories);
+  //         }
+  //       } catch (err) {
+  //         console.error('File upload error:', err);
+  //         setError('Failed to upload file. Please ensure it\'s a valid JSON.');
+  //       }
+  //     };
+  //     reader.readAsText(file);
+  //   }
+  // };
 
  const savePrompt = async (updatedPrompt) => {
   console.log('Saving prompt:', updatedPrompt);
