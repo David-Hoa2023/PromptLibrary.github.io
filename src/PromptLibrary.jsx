@@ -155,16 +155,16 @@ const PromptLibrary = () => {
     }
   };
 
-    try {
-      await saveData('prompts', newPrompts);
-      await saveData('tags', newTags);
-      setPrompts(newPrompts);
-      setTags(newTags);
-      setEditingPrompt(null);
-    } catch (err) {
-      setError('Failed to save prompt. Please try again.');
-    }
-  };
+  //   try {
+  //     await saveData('prompts', newPrompts);
+  //     await saveData('tags', newTags);
+  //     setPrompts(newPrompts);
+  //     setTags(newTags);
+  //     setEditingPrompt(null);
+  //   } catch (err) {
+  //     setError('Failed to save prompt. Please try again.');
+  //   }
+  // };
 
   const toggleCategory = (category) => {
     if (category === 'All') {
