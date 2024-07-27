@@ -1,18 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import PromptLibrary from './PromptLibrary';
-import ErrorBoundary from './ErrorBoundary';
+import { useEffect } from 'react';
 
-function App() {
-  return (
-    <ErrorBoundary>
-      <div className="App">
-        <PromptLibrary />
-      </div>
-    </ErrorBoundary>
-  );
-}
+useEffect(() => {
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/";
+        });
+      }
+    });
+  }
+}, []);
+// import React, { useState, useEffect } from 'react';
+// import PromptLibrary from './PromptLibrary';
+// import ErrorBoundary from './ErrorBoundary';
 
-export default App;
+// function App() {
+//   return (
+//     <ErrorBoundary>
+//       <div className="App">
+//         <PromptLibrary />
+//       </div>
+//     </ErrorBoundary>
+//   );
+// }
+
+// export default App;
 
 // function App() {
 //   const [isLoading, setIsLoading] = useState(true);
