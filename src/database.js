@@ -48,20 +48,25 @@ export const getData = async () => {
   if (!user) throw new Error('No user logged in');
 
   try {
+    console.log('Fetching data for user:', user.email);
     const token = user.token.access_token;
+    console.log('User token:', token.slice(0, 10) + '...');
+
     const response = await fetch('/.netlify/functions/getData', {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
 
+    console.log('Response status:', response.status);
+    const responseText = await response.text();
+    console.log('Response text:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getData error:', response.status, errorText);
-      throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
+      throw new Error(`Failed to fetch data: ${response.status} ${responseText}`);
     }
 
-    const data = await response.json();
+    const data = JSON.parse(responseText);
     console.log('getData response:', data);
     return data;
   } catch (error) {
