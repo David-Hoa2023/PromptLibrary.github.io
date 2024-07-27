@@ -41,11 +41,12 @@ export const saveData = async (key, value) => {
 
   try {
     console.log(`Saving data for key: ${key}`, value);
+    const token = await user.jwt();  // Get the user's JWT token
     const response = await fetch('/.netlify/functions/saveData', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + user.token.access_token,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ key, value }),
     });
