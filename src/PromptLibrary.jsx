@@ -175,31 +175,21 @@ const PromptLibrary = () => {
           </div>
 
           {/* Right section */}
-{/*           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4 mt-16">
+          <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Prompt</h2>
-              <div className="flex gap-2">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                  accept=".json"
-                />
-                <button 
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <Upload className="mr-2" size={20} />
-                  Upload JSON
-                </button>
-                <button 
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={addPrompt}
-                >
-                  Prompt mới
-                </button>
-              </div>
+              <button 
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={() => setEditingPrompt({
+                  id: Date.now(), // Generate a temporary ID
+                  name: '',
+                  category: categories[1] || 'Văn bản', // Default to the first non-'All' category
+                  content: '',
+                  tags: []
+                })}
+              >
+                Prompt mới
+              </button>
             </div>
             <div className="grid grid-cols-3 gap-4">
               {filteredPrompts.map(prompt => {
@@ -207,33 +197,91 @@ const PromptLibrary = () => {
                 return (
                   <div 
                     key={prompt.id} 
-                    className="p-4 rounded shadow-md cursor-pointer text-gray-800 relative"
+                    className="p-4 rounded shadow-md cursor-pointer text-gray-800"
                     style={{ backgroundColor: bgColor }}
+                    onClick={() => setEditingPrompt(prompt)}
                   >
-                    <Trash2
-                      size={18}
-                      className="absolute top-2 right-2 text-red-500 cursor-pointer"
-                      onClick={() => setShowDeleteConfirm({ type: 'prompt', item: prompt })}
-                    />
-                    <div onClick={() => setEditingPrompt(prompt)}>
-                      <h3 className="font-bold mb-2">{prompt.name}</h3>
-                      <p className="text-sm mb-2 line-clamp-3">
-                        {prompt.content.slice(0, 100)}
-                        {prompt.content.length > 100 && '...'}
-                      </p>
-                      <div className="text-right text-xs opacity-75">
-                        {prompt.category}
-                      </div>
+                    <h3 className="font-bold mb-2">{prompt.name}</h3>
+                    <p className="text-sm mb-2 line-clamp-3">
+                      {prompt.content.slice(0, 100)}
+                      {prompt.content.length > 100 && '...'}
+                    </p>
+                    <div className="text-right text-xs opacity-75">
+                      {prompt.category}
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div> */}
+          </div>
+          
+          {editingPrompt && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded-lg w-2/3 h-2/3 flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <input 
+                    className="text-xl font-bold w-full"
+                    value={editingPrompt.name}
+                    onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
+                    placeholder="Prompt Name"
+                  />
+                  <button onClick={() => setEditingPrompt(null)}>
+                    <X size={24} />
+                  </button>
+                </div>
+                <select 
+                  className="mb-4 p-2 border rounded"
+                  value={editingPrompt.category}
+                  onChange={(e) => setEditingPrompt({...editingPrompt, category: e.target.value})}
+                >
+                  {categories.filter(category => category !== 'All').map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+                <textarea 
+                  className="flex-grow p-2 border rounded resize-none mb-4"
+                  value={editingPrompt.content}
+                  onChange={(e) => setEditingPrompt({...editingPrompt, content: e.target.value})}
+                  placeholder="Prompt Content"
+                />
+                <div className="mb-4">
+                  <input 
+                    className="p-2 border rounded w-full"
+                    placeholder="Add tags (comma-separated)"
+                    value={editingPrompt.tags.join(', ')}
+                    onChange={(e) => setEditingPrompt({
+                      ...editingPrompt, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                    })}
+                  />
+                </div>
+                <button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  onClick={() => {
+                    if (editingPrompt.id) {
+                      // Updating existing prompt
+                      const updatedPrompts = prompts.map(p => 
+                        p.id === editingPrompt.id ? editingPrompt : p
+                      );
+                      setPrompts(updatedPrompts);
+                    } else {
+                      // Adding new prompt
+                      setPrompts([...prompts, {...editingPrompt, id: Date.now()}]);
+                    }
+                    setEditingPrompt(null);
+                    saveData('prompts', prompts);
+                  }}
+                >
+                  {editingPrompt.id ? 'Update Prompt' : 'Add Prompt'}
+                </button>
+              </div>
+            </div>
+          )}
+
 
 
           
-          <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+{/*           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Prompt</h2>
               <button 
@@ -265,7 +313,7 @@ const PromptLibrary = () => {
                 );
               })}
             </div>
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="w-full flex items-center justify-center">
