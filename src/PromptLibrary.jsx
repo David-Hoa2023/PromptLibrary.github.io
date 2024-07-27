@@ -411,8 +411,8 @@ const PromptLibrary = () => {
           <p>Please sign in to view your prompt library.</p>
         </div>
       )}
-    </div>
-  );
+{/*     </div> */}
+  ):
 };
 
 export default PromptLibrary;
