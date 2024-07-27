@@ -7,7 +7,7 @@ export const getCurrentUser = () => {
 
 export const signUp = async (email, password) => {
   try {
-    await netlifyIdentity.signup({ email, password });
+    await netlifyIdentity.signup(email, password);
   } catch (error) {
     console.error('Sign up error:', error);
     throw new Error(error.message || 'Failed to sign up');
@@ -16,7 +16,7 @@ export const signUp = async (email, password) => {
 
 export const signIn = async (email, password) => {
   try {
-    await netlifyIdentity.login({ email, password });
+    await netlifyIdentity.login(email, password);
   } catch (error) {
     console.error('Sign in error:', error);
     throw new Error(error.message || 'Failed to sign in');
