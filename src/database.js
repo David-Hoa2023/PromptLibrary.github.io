@@ -1,60 +1,52 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
+const netlifyIdentity = window.netlifyIdentity;
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  // Add your Firebase config here
+export const getCurrentUser = () => {
+  return netlifyIdentity.currentUser();
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
 export const signUp = async (email, password) => {
-  await createUserWithEmailAndPassword(auth, email, password);
+  await netlifyIdentity.signup({ email, password });
 };
 
 export const signIn = async (email, password) => {
-  await signInWithEmailAndPassword(auth, email, password);
+  await netlifyIdentity.login({ email, password });
 };
 
 export const signOut = async () => {
-  await firebaseSignOut(auth);
-};
-
-export const getCurrentUser = () => {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
-      unsubscribe();
-      resolve(user);
-    }, reject);
-  });
+  await netlifyIdentity.logout();
 };
 
 export const saveData = async (key, value) => {
-  const user = auth.currentUser;
+  const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
   
-  await addDoc(collection(db, key), {
-    ...value,
-    userId: user.uid
+  const response = await fetch('/.netlify/functions/saveData', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + user.token.access_token,
+    },
+    body: JSON.stringify({ key, value }),
   });
+  
+  if (!response.ok) {
+    throw new Error('Failed to save data');
+  }
 };
 
 export const getAllData = async () => {
-  const user = auth.currentUser;
+  const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
 
-  const data = {};
-  const collections = ['categories', 'prompts', 'tags'];
-
-  for (const collectionName of collections) {
-    const q = query(collection(db, collectionName), where("userId", "==", user.uid));
-    const querySnapshot = await getDocs(q);
-    data[collectionName] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const response = await fetch('/.netlify/functions/getAllData', {
+    headers: {
+      'Authorization': 'Bearer ' + user.token.access_token,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch data');
   }
-
-  return data;
+  
+  return response.json();
 };
