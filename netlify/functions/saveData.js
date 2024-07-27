@@ -2,6 +2,9 @@ const { MongoClient } = require('mongodb');
 
 exports.handler = async (event, context) => {
   console.log('saveData function called');
+  console.log('Event headers:', event.headers);
+  console.log('Client context:', context.clientContext);
+
   const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
   try {
@@ -10,7 +13,7 @@ exports.handler = async (event, context) => {
       console.log('No authenticated user');
       return { 
         statusCode: 401, 
-        body: JSON.stringify({ error: 'Unauthorized' }) 
+        body: JSON.stringify({ error: 'Unauthorized', details: 'No user context' }) 
       };
     }
 
