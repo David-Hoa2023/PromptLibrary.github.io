@@ -17,6 +17,13 @@ const PromptLibrary = () => {
   const [editingPrompt, setEditingPrompt] = useState(null);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [isAddingPrompt, setIsAddingPrompt] = useState(false);
+  const [newPrompt, setNewPrompt] = useState({
+    name: '',
+    category: '',
+    content: '',
+    tags: []
+  });
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -63,26 +70,35 @@ const PromptLibrary = () => {
   };
 
   const addPrompt = () => {
-    const newPrompt = {
-      id: Date.now(),
-      name: 'New Prompt',
-      category: categories[1],
+    setNewPrompt({
+      name: '',
+      category: categories[0] || '',
       content: '',
       tags: []
-    };
-    setEditingPrompt(newPrompt);
+    });
+    setIsAddingPrompt(true);
   };
 
-  const savePrompt = async (updatedPrompt) => {
-    let newPrompts;
-    if (prompts.some(p => p.id === updatedPrompt.id)) {
-      newPrompts = prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p);
-    } else {
-      newPrompts = [...prompts, updatedPrompt];
+  const saveNewPrompt = async () => {
+    if (!newPrompt.name || !newPrompt.category || !newPrompt.content) {
+      setError('Please fill in all fields');
+      return;
     }
-    
-    // Update tags
-    const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+    const updatedPrompt = { ...newPrompt, id: Date.now() };
+    const newPrompts = [...prompts, updatedPrompt];
+    try {
+      await saveData('prompts', newPrompts);
+      setPrompts(newPrompts);
+      setIsAddingPrompt(false);
+      
+      // Update tags
+      const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
+      await saveData('tags', newTags);
+      setTags(newTags);
+    } catch (err) {
+      setError('Failed to save prompt. Please try again.');
+    }
+  };
 
     try {
       await saveData('prompts', newPrompts);
@@ -230,9 +246,10 @@ const PromptLibrary = () => {
               ))}
             </div>
           </div>
+
           {/* Right section */}
           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4 mt-16"> {/* Added mt-16 for spacing */}
+            <div className="flex justify-between items-center mb-4 mt-16">
               <h2 className="text-xl font-bold">Prompt</h2>
               <button 
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -241,8 +258,6 @@ const PromptLibrary = () => {
                 Prompt mới
               </button>
             </div>
-
-         
             <div className="grid grid-cols-3 gap-4">
               {filteredPrompts.map(prompt => {
                 const bgColor = getLightPastelColor();
@@ -267,54 +282,69 @@ const PromptLibrary = () => {
             </div>
           </div>
 
-          {/* Full-screen edit modal */}
-          {editingPrompt && (
+          {/* New Prompt Modal */}
+          {isAddingPrompt && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
               <div className="bg-white p-6 rounded-lg w-2/3 h-2/3 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                   <input 
                     className="text-xl font-bold"
-                    value={editingPrompt.name}
-                    onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
+                    value={newPrompt.name}
+                    onChange={(e) => setNewPrompt({...newPrompt, name: e.target.value})}
+                    placeholder="Prompt Name"
                   />
-                  <button onClick={() => setEditingPrompt(null)}>
+                  <button onClick={() => setIsAddingPrompt(false)}>
                     <X size={24} />
                   </button>
                 </div>
                 <select 
                   className="mb-4 p-2 border rounded"
-                  value={editingPrompt.category}
-                  onChange={(e) => setEditingPrompt({...editingPrompt, category: e.target.value})}
+                  value={newPrompt.category}
+                  onChange={(e) => setNewPrompt({...newPrompt, category: e.target.value})}
                 >
-                  {categories.slice(1).map(category => (
+                  {['Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận', ...categories].map(category => (
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
                 <textarea 
                   className="flex-grow p-2 border rounded resize-none mb-4"
-                  value={editingPrompt.content}
-                  onChange={(e) => setEditingPrompt({...editingPrompt, content: e.target.value})}
+                  value={newPrompt.content}
+                  onChange={(e) => setNewPrompt({...newPrompt, content: e.target.value})}
+                  placeholder="Prompt Content"
                 />
                 <div className="mb-4">
-                  <input 
-                    className="p-2 border rounded w-full"
-                    placeholder="Add tags (comma-separated)"
-                    value={editingPrompt.tags.join(', ')}
-                    onChange={(e) => setEditingPrompt({
-                      ...editingPrompt, 
-                      tags: e.target.value.split(',').map(tag => tag.trim().startsWith('#') ? tag.trim() : `#${tag.trim()}`).filter(tag => tag)
-                    })}
-                  />
+                  <p className="mb-2">Select Tags:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map(tag => (
+                      <span 
+                        key={tag}
+                        className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
+                          newPrompt.tags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                        }`}
+                        onClick={() => {
+                          if (newPrompt.tags.includes(tag)) {
+                            setNewPrompt({...newPrompt, tags: newPrompt.tags.filter(t => t !== tag)});
+                          } else {
+                            setNewPrompt({...newPrompt, tags: [...newPrompt.tags, tag]});
+                          }
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <button 
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={() => savePrompt(editingPrompt)}
+                  onClick={saveNewPrompt}
                 >
-                  Save Changes
+                  Save New Prompt
                 </button>
               </div>
             </div>
           )}
+
+          {/* ... (keep the existing edit modal) */}
         </>
       ) : (
         <div className="w-full flex items-center justify-center">
