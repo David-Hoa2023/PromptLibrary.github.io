@@ -378,57 +378,34 @@ const PromptLibrary = () => {
                   placeholder="Prompt Content"
                 />
                 <div className="mb-4">
-              <input 
-                className="p-2 border rounded w-full"
-                placeholder="Add tags (comma-separated)"
-                value={editingPrompt.tags.join(', ')}
-                onChange={(e) => setEditingPrompt({
-                  ...editingPrompt, 
-                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
-                })}
-              />
-            </div>
-            <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={() => updatePrompt(editingPrompt)}
-            >
-              Save Changes
-            </button>
-{/*                 <div className="mb-4">
-                  <p className="mb-2">Select Tags:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map(tag => (
-                      <span 
-                        key={tag}
-                        className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
-                          newPrompt.tags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                        }`}
-                        onClick={() => {
-                          if (newPrompt.tags.includes(tag)) {
-                            setNewPrompt({...newPrompt, tags: newPrompt.tags.filter(t => t !== tag)});
-                          } else {
-                            setNewPrompt({...newPrompt, tags: [...newPrompt.tags, tag]});
-                          }
-                        }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  <input 
+                    className="p-2 border rounded w-full"
+                    placeholder="Add tags (comma-separated)"
+                    value={editingPrompt.tags.join(', ')}
+                    onChange={(e) => setEditingPrompt({
+                      ...editingPrompt, 
+                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                    })}
+                  />
                 </div>
                 <button 
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={saveNewPrompt}
+                  onClick={() => updatePrompt(editingPrompt)}
+                >
+                  Save Changes
+                </button>
+                <button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  onClick={() => saveNewPrompt(newPrompt)}
                 >
                   Save New Prompt
                 </button>
               </div>
             </div>
-          )} */}
-                
+          )}
 
-          {/* ... (keep the existing edit modal) */}
-        </>
+
+          
       ) : (
         <div className="w-full flex items-center justify-center">
           <p>Please sign in to view your prompt library.</p>
