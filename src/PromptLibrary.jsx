@@ -18,7 +18,6 @@ const PromptLibrary = () => {
   const [isAddingPrompt, setIsAddingPrompt] = useState(false);  
   const [selectedTags, setSelectedTags] = useState([]);
   const [editingPrompt, setEditingPrompt] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [rememberMe, setRememberMe] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const fileInputRef = useRef(null);
