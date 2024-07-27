@@ -42,7 +42,7 @@ export const saveData = async (key, value) => {
   try {
     console.log(`Saving data for key: ${key}`, value);
     const token = user.token.access_token;
-    console.log('User token:', token.slice(0, 10) + '...'); // Log part of the token for debugging
+    console.log('User token:', token.slice(0, 10) + '...');
 
     const response = await fetch('/.netlify/functions/saveData', {
       method: 'POST',
