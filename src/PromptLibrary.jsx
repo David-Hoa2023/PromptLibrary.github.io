@@ -105,7 +105,7 @@ const PromptLibrary = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const data = await getAllData();
+      const data = await getData();
       console.log('Loaded data:', data);
       setCategories(data.categories || ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
       setPrompts(data.prompts || []);
@@ -116,7 +116,7 @@ const PromptLibrary = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }; 
 
   const savePrompt = async (updatedPrompt) => {
     console.log('Saving prompt:', updatedPrompt);
