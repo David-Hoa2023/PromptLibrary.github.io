@@ -1,11 +1,21 @@
 const netlifyIdentity = window.netlifyIdentity;
 
+
 export const getCurrentUser = () => {
   return netlifyIdentity.currentUser();
 };
 
 export const signOut = async () => {
   await netlifyIdentity.logout();
+};
+
+export const getData = async () => {
+  const user = getCurrentUser();
+  if (!user) throw new Error('No user logged in');
+
+  // Implement your data fetching logic here
+  // For now, we'll just return an empty object
+  return {};
 };
 
 export const saveData = async (key, value) => {
@@ -43,29 +53,29 @@ export const saveData = async (key, value) => {
   }
 };
 
-export const getData = async () => {
-  const user = getCurrentUser();
-  if (!user) throw new Error('No user logged in');
+// export const getData = async () => {
+//   const user = getCurrentUser();
+//   if (!user) throw new Error('No user logged in');
 
-  try {
-    const token = user.token.access_token;
-    const response = await fetch('/.netlify/functions/getData', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+//   try {
+//     const token = user.token.access_token;
+//     const response = await fetch('/.netlify/functions/getData', {
+//       headers: {
+//         'Authorization': `Bearer ${token}`,
+//       },
+//     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getData error:', response.status, errorText);
-      throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
-    }
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error('getData error:', response.status, errorText);
+//       throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
+//     }
 
-    const data = await response.json();
-    console.log('getData response:', data);
-    return data;
-  } catch (error) {
-    console.error('Error in getData:', error);
-    throw error;
-  }
-};
+//     const data = await response.json();
+//     console.log('getData response:', data);
+//     return data;
+//   } catch (error) {
+//     console.error('Error in getData:', error);
+//     throw error;
+//   }
+// };
