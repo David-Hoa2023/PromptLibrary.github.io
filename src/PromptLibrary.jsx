@@ -117,12 +117,14 @@ const PromptLibrary = () => {
       : [...prompts, updatedPrompt];
     
     try {
+      console.log('Saving prompts:', newPrompts);
       await saveData('prompts', newPrompts);
       setPrompts(newPrompts);
       setEditingPrompt(null);
+      console.log('Prompt saved successfully');
     } catch (error) {
       console.error('Save prompt error:', error);
-      setError('Failed to save prompt. Please try again.');
+      setError(`Failed to save prompt: ${error.message}`);
     }
   };
 
