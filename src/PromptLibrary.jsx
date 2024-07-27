@@ -24,6 +24,49 @@ const PromptLibrary = () => {
     content: '',
     tags: []
   });
+  const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.on('init', user => {
+      setUser(user);
+      if (user) {
+        loadData();
+      }
+    });
+    netlifyIdentity.on('login', user => {
+      setUser(user);
+      loadData();
+      if (rememberMe) {
+        netlifyIdentity.remember(true);
+      }
+    });
+    netlifyIdentity.on('logout', () => {
+      setUser(null);
+    });
+    netlifyIdentity.init();
+
+    return () => {
+      netlifyIdentity.off('init');
+      netlifyIdentity.off('login');
+      netlifyIdentity.off('logout');
+    };
+  }, [rememberMe]);
+
+  const handleSignIn = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.open('login');
+  };
+
+  const handleSignUp = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.open('signup');
+  };
+
+  const handleSignOut = async () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.logout();
+  };
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -184,6 +227,16 @@ const PromptLibrary = () => {
           </>
         ) : (
           <>
+            <div className="flex items-center mr-2">
+              <input 
+                type="checkbox" 
+                id="rememberMe" 
+                checked={rememberMe} 
+                onChange={(e) => setRememberMe(e.target.checked)} 
+                className="mr-1"
+              />
+              <label htmlFor="rememberMe">Remember Me</label>
+            </div>
             <button 
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
               onClick={handleSignIn}
