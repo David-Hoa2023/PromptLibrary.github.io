@@ -53,21 +53,6 @@ const PromptLibrary = () => {
     };
   }, [rememberMe]);
 
-  // const handleSignIn = () => {
-  //   const netlifyIdentity = window.netlifyIdentity;
-  //   netlifyIdentity.open('login');
-  // };
-
-  // const handleSignUp = () => {
-  //   const netlifyIdentity = window.netlifyIdentity;
-  //   netlifyIdentity.open('signup');
-  // };
-
-  // const handleSignOut = async () => {
-  //   const netlifyIdentity = window.netlifyIdentity;
-  //   netlifyIdentity.logout();
-  // };
-
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.on('login', (user) => setUser(user));
@@ -99,18 +84,6 @@ const PromptLibrary = () => {
     }
   };
 
-  // const addCategory = async () => {
-  //   const newCategory = prompt('Enter new category name:');
-  //   if (newCategory && !categories.includes(newCategory)) {
-  //     const newCategories = [...categories, newCategory];
-  //     setCategories(newCategories);
-  //     try {
-  //       await saveData('categories', newCategories);
-  //     } catch (err) {
-  //       setError('Failed to save category. Please try again.');
-  //     }
-  //   }
-  // };
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
     if (newCategory && !categories.includes(newCategory)) {
@@ -154,17 +127,6 @@ const PromptLibrary = () => {
       setError('Failed to save prompt. Please try again.');
     }
   };
-
-  //   try {
-  //     await saveData('prompts', newPrompts);
-  //     await saveData('tags', newTags);
-  //     setPrompts(newPrompts);
-  //     setTags(newTags);
-  //     setEditingPrompt(null);
-  //   } catch (err) {
-  //     setError('Failed to save prompt. Please try again.');
-  //   }
-  // };
 
   const toggleCategory = (category) => {
     if (category === 'All') {
@@ -381,22 +343,16 @@ const PromptLibrary = () => {
                   <input 
                     className="p-2 border rounded w-full"
                     placeholder="Add tags (comma-separated)"
-                    value={editingPrompt.tags.join(', ')}
-                    onChange={(e) => setEditingPrompt({
-                      ...editingPrompt, 
+                    value={newPrompt.tags.join(', ')}
+                    onChange={(e) => setNewPrompt({
+                      ...newPrompt, 
                       tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
                     })}
                   />
                 </div>
                 <button 
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={() => updatePrompt(editingPrompt)}
-                >
-                  Save Changes
-                </button>
-                <button 
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={() => saveNewPrompt(newPrompt)}
+                  onClick={saveNewPrompt}
                 >
                   Save New Prompt
                 </button>
@@ -404,15 +360,14 @@ const PromptLibrary = () => {
             </div>
           )}
 
-
-          
+        </>
       ) : (
         <div className="w-full flex items-center justify-center">
           <p>Please sign in to view your prompt library.</p>
         </div>
       )}
-{/*     </div> */}
-  ):
+    </div>
+  );
 };
 
 export default PromptLibrary;
