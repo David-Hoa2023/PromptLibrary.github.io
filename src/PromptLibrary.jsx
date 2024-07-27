@@ -393,6 +393,7 @@ const PromptLibrary = () => {
               onClick={() => updatePrompt(editingPrompt)}
             >
               Save Changes
+            </button>
 {/*                 <div className="mb-4">
                   <p className="mb-2">Select Tags:</p>
                   <div className="flex flex-wrap gap-2">
