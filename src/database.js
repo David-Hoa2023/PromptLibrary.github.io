@@ -8,35 +8,8 @@ export const signOut = async () => {
   await netlifyIdentity.logout();
 };
 
-export const getData = async () => {
-  const user = getCurrentUser();
-  if (!user) throw new Error('No user logged in');
-
-  try {
-    console.log('Fetching data for user:', user.email);
-    const response = await fetch('/.netlify/functions/getData', {
-      headers: {
-        'Authorization': 'Bearer ' + user.token.access_token,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getData error:', response.status, errorText);
-      throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log('getData response:', data);
-    return data;
-  } catch (error) {
-    console.error('Error in getData:', error);
-    throw error;
-  }
-};
-
 export const saveData = async (key, value) => {
-  const user = netlifyIdentity.currentUser();
+  const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
 
   try {
@@ -66,6 +39,33 @@ export const saveData = async (key, value) => {
     return result;
   } catch (error) {
     console.error('Error in saveData:', error);
+    throw error;
+  }
+};
+
+export const getData = async () => {
+  const user = getCurrentUser();
+  if (!user) throw new Error('No user logged in');
+
+  try {
+    const token = user.token.access_token;
+    const response = await fetch('/.netlify/functions/getData', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('getData error:', response.status, errorText);
+      throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('getData response:', data);
+    return data;
+  } catch (error) {
+    console.error('Error in getData:', error);
     throw error;
   }
 };
