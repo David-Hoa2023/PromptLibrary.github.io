@@ -1,3 +1,4 @@
+// Ensure netlifyIdentity is available
 const netlifyIdentity = window.netlifyIdentity;
 
 export const getCurrentUser = () => {
