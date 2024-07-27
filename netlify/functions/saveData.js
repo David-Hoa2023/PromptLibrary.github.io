@@ -1,26 +1,26 @@
 const { MongoClient } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 exports.handler = async (event, context) => {
   console.log('saveData function called');
   const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
   try {
+    // Verify the JWT token
+    const token = event.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.sub;
+
     await client.connect();
     console.log('Connected to MongoDB');
     const database = client.db('promptLibrary');
     const collection = database.collection('userData');
 
-    const { user } = context.clientContext;
-    if (!user) {
-      console.log('No user context');
-      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-    }
-
     const { key, value } = JSON.parse(event.body);
     console.log('Saving data:', { key, value });
 
     await collection.updateOne(
-      { userId: user.sub, key: key },
+      { userId: userId, key: key },
       { $set: { value: value } },
       { upsert: true }
     );
@@ -33,7 +33,7 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Error in saveData:', error);
     return { 
-      statusCode: 500, 
+      statusCode: error.name === 'JsonWebTokenError' ? 401 : 500, 
       body: JSON.stringify({ error: 'Failed to save data', details: error.message }) 
     };
   } finally {
