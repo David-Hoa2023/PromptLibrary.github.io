@@ -11,21 +11,21 @@ useEffect(() => {
     });
   }
 }, []);
-// import React, { useState, useEffect } from 'react';
-// import PromptLibrary from './PromptLibrary';
-// import ErrorBoundary from './ErrorBoundary';
+import React, { useState, useEffect } from 'react';
+import PromptLibrary from './PromptLibrary';
+import ErrorBoundary from './ErrorBoundary';
 
-// function App() {
-//   return (
-//     <ErrorBoundary>
-//       <div className="App">
-//         <PromptLibrary />
-//       </div>
-//     </ErrorBoundary>
-//   );
-// }
+function App() {
+  return (
+    <ErrorBoundary>
+      <div className="App">
+        <PromptLibrary />
+      </div>
+    </ErrorBoundary>
+  );
+}
 
-// export default App;
+export default App;
 
 // function App() {
 //   const [isLoading, setIsLoading] = useState(true);
