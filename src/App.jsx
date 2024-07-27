@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import PromptLibrary from './PromptLibrary';
-
-import React from 'react';
 import ErrorBoundary from './ErrorBoundary';
 
 function App() {
