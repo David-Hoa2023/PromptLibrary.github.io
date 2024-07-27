@@ -19,6 +19,8 @@ const PromptLibrary = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [rememberMe, setRememberMe] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -65,30 +67,7 @@ const PromptLibrary = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // const handleSignIn = () => {
-  //   const netlifyIdentity = window.netlifyIdentity;
-  //   netlifyIdentity.open('login');
-  // };
-
-  // const handleSignUp = () => {
-  //   const netlifyIdentity = window.netlifyIdentity;
-  //   netlifyIdentity.open('signup');
-  // };
-
-  // const handleSignOut = async () => {
-  //   try {
-  //     await signOut();
-  //     setUser(null);
-  //     setPrompts([]);
-  //     setCategories(['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
-  //     setTags([]);
-  //   } catch (error) {
-  //     console.error('Sign out error:', error);
-  //     setError('Failed to sign out. Please try again.');
-  //   }
-  // };
+  };  
 
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
@@ -113,6 +92,80 @@ const PromptLibrary = () => {
       tags: []
     });
     setIsAddingPrompt(true);
+  };
+
+  const deleteCategory = async (category) => {
+    if (category === 'All') return;
+    const newCategories = categories.filter(c => c !== category);
+    const newPrompts = prompts.filter(p => p.category !== category);
+    try {
+      await saveData('categories', newCategories);
+      await saveData('prompts', newPrompts);
+      setCategories(newCategories);
+      setPrompts(newPrompts);
+    } catch (err) {
+      console.error('Delete category error:', err);
+      setError('Failed to delete category. Please try again.');
+    }
+  };
+
+  const deleteTag = async (tagToDelete) => {
+    const newTags = tags.filter(tag => tag !== tagToDelete);
+    const newPrompts = prompts.map(prompt => ({
+      ...prompt,
+      tags: prompt.tags.filter(tag => tag !== tagToDelete)
+    }));
+    try {
+      await saveData('tags', newTags);
+      await saveData('prompts', newPrompts);
+      setTags(newTags);
+      setPrompts(newPrompts);
+    } catch (err) {
+      console.error('Delete tag error:', err);
+      setError('Failed to delete tag. Please try again.');
+    }
+  };
+
+  const deletePrompt = async (promptId) => {
+    const newPrompts = prompts.filter(p => p.id !== promptId);
+    try {
+      await saveData('prompts', newPrompts);
+      setPrompts(newPrompts);
+    } catch (err) {
+      console.error('Delete prompt error:', err);
+      setError('Failed to delete prompt. Please try again.');
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          const newPrompts = json.map(item => ({
+            id: Date.now() + Math.random(),
+            name: item['Mô tả'].slice(0, 50) + '...',
+            category: 'Uploaded',
+            content: `Mô tả: ${item['Mô tả']}\n\nVí dụ: ${item['Ví dụ']}`,
+            tags: []
+          }));
+          const updatedPrompts = [...prompts, ...newPrompts];
+          await saveData('prompts', updatedPrompts);
+          setPrompts(updatedPrompts);
+          if (!categories.includes('Uploaded')) {
+            const newCategories = [...categories, 'Uploaded'];
+            await saveData('categories', newCategories);
+            setCategories(newCategories);
+          }
+        } catch (err) {
+          console.error('File upload error:', err);
+          setError('Failed to upload file. Please ensure it\'s a valid JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
   };
 
  const savePrompt = async (updatedPrompt) => {
@@ -256,16 +309,24 @@ const PromptLibrary = () => {
               {categories.map(category => (
                 <li 
                   key={category} 
-                  className="flex items-center cursor-pointer p-2"
-                  onClick={() => toggleCategory(category)}
+                  className="flex items-center justify-between cursor-pointer p-2"
                 >
-                  <input 
-                    type="checkbox" 
-                    checked={selectedCategories.includes(category)}
-                    readOnly
-                    className="mr-2"
-                  />
-                  {category}
+                  <div className="flex items-center" onClick={() => toggleCategory(category)}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedCategories.includes(category)}
+                      readOnly
+                      className="mr-2"
+                    />
+                    {category}
+                  </div>
+                  {category !== 'All' && (
+                    <Trash2
+                      size={18}
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => setShowDeleteConfirm({ type: 'category', item: category })}
+                    />
+                  )}
                 </li>
               ))}
             </ul>
@@ -281,12 +342,16 @@ const PromptLibrary = () => {
               {tags.map(tag => (
                 <span 
                   key={tag}
-                  className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
+                  className={`px-2 py-1 rounded-full text-sm cursor-pointer flex items-center ${
                     selectedTags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
                   }`}
-                  onClick={() => toggleTag(tag)}
                 >
-                  {tag}
+                  <span onClick={() => toggleTag(tag)}>{tag}</span>
+                  <Trash2
+                    size={14}
+                    className="ml-1 text-red-500 cursor-pointer"
+                    onClick={() => setShowDeleteConfirm({ type: 'tag', item: tag })}
+                  />
                 </span>
               ))}
             </div>
@@ -296,12 +361,28 @@ const PromptLibrary = () => {
           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
             <div className="flex justify-between items-center mb-4 mt-16">
               <h2 className="text-xl font-bold">Prompt</h2>
-              <button 
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                onClick={addPrompt}
-              >
-                Prompt mới
-              </button>
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                  accept=".json"
+                />
+                <button 
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <Upload className="mr-2" size={20} />
+                  Upload JSON
+                </button>
+                <button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  onClick={addPrompt}
+                >
+                  Prompt mới
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               {filteredPrompts.map(prompt => {
@@ -309,23 +390,58 @@ const PromptLibrary = () => {
                 return (
                   <div 
                     key={prompt.id} 
-                    className="p-4 rounded shadow-md cursor-pointer text-gray-800"
+                    className="p-4 rounded shadow-md cursor-pointer text-gray-800 relative"
                     style={{ backgroundColor: bgColor }}
-                    onClick={() => setEditingPrompt(prompt)}
                   >
-                    <h3 className="font-bold mb-2">{prompt.name}</h3>
-                    <p className="text-sm mb-2 line-clamp-3">
-                      {prompt.content.slice(0, 100)}
-                      {prompt.content.length > 100 && '...'}
-                    </p>
-                    <div className="text-right text-xs opacity-75">
-                      {prompt.category}
+                    <Trash2
+                      size={18}
+                      className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                      onClick={() => setShowDeleteConfirm({ type: 'prompt', item: prompt })}
+                    />
+                    <div onClick={() => setEditingPrompt(prompt)}>
+                      <h3 className="font-bold mb-2">{prompt.name}</h3>
+                      <p className="text-sm mb-2 line-clamp-3">
+                        {prompt.content.slice(0, 100)}
+                        {prompt.content.length > 100 && '...'}
+                      </p>
+                      <div className="text-right text-xs opacity-75">
+                        {prompt.category}
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+
+          {/* Delete Confirmation Modal */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-6 rounded-lg">
+                <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                <p>Are you sure you want to delete this {showDeleteConfirm.type}?</p>
+                <div className="flex justify-end mt-4">
+                  <button 
+                    className="bg-gray-300 text-black px-4 py-2 rounded mr-2"
+                    onClick={() => setShowDeleteConfirm(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    onClick={() => {
+                      if (showDeleteConfirm.type === 'category') deleteCategory(showDeleteConfirm.item);
+                      if (showDeleteConfirm.type === 'tag') deleteTag(showDeleteConfirm.item);
+                      if (showDeleteConfirm.type === 'prompt') deletePrompt(showDeleteConfirm.item.id);
+                      setShowDeleteConfirm(null);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Edit/Add Prompt Modal */}
           {editingPrompt && (
