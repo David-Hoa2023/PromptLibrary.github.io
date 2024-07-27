@@ -102,9 +102,11 @@ const PromptLibrary = () => {
       : [...prompts, updatedPrompt];
     
     const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
-
+  
     try {
+      console.log('Saving prompts:', newPrompts);
       await saveData('prompts', newPrompts);
+      console.log('Saving tags:', newTags);
       await saveData('tags', newTags);
       setPrompts(newPrompts);
       setTags(newTags);
@@ -112,7 +114,7 @@ const PromptLibrary = () => {
       setIsAddingPrompt(false);
     } catch (error) {
       console.error('Save prompt error:', error);
-      setError('Failed to save prompt. Please try again.');
+      setError(`Failed to save prompt: ${error.message}`);
     }
   };
 
