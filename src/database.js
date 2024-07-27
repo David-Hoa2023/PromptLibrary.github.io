@@ -4,6 +4,10 @@ export const getCurrentUser = () => {
   return netlifyIdentity.currentUser();
 };
 
+export const signOut = async () => {
+  await netlifyIdentity.logout();
+};
+
 export const getData = async () => {
   const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
