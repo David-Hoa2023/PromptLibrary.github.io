@@ -122,17 +122,22 @@ const PromptLibrary = () => {
     e.preventDefault();
     try {
       if (isSignUp) {
+        console.log('Attempting to sign up...');
         await signUp(email, password);
+        console.log('Sign up successful');
       } else {
+        console.log('Attempting to sign in...');
         await signIn(email, password);
+        console.log('Sign in successful');
       }
       setShowAuthModal(false);
       setEmail('');
       setPassword('');
     } catch (error) {
-      setError(error.message);
+      console.error('Authentication error:', error);
+      setError(error.message || 'An error occurred during authentication');
     }
-  };
+  };  
 
   const filteredPrompts = prompts.filter(prompt => 
     (selectedCategories.includes('All') || selectedCategories.includes(prompt.category)) &&
