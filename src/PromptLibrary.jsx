@@ -118,16 +118,36 @@ const PromptLibrary = () => {
     );
   };
 
+  // const handleAuth = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     if (isSignUp) {
+  //       console.log('Attempting to sign up...');
+  //       await signUp(email, password);
+  //       console.log('Sign up successful');
+  //     } else {
+  //       console.log('Attempting to sign in...');
+  //       await signIn(email, password);
+  //       console.log('Sign in successful');
+  //     }
+  //     setShowAuthModal(false);
+  //     setEmail('');
+  //     setPassword('');
+  //   } catch (error) {
+  //     console.error('Authentication error:', error);
+  //     setError(error.message || 'An error occurred during authentication');
+  //   }
+  // };
   const handleAuth = async (e) => {
     e.preventDefault();
     try {
       if (isSignUp) {
         console.log('Attempting to sign up...');
-        await signUp(email, password);
+        await signUp();
         console.log('Sign up successful');
       } else {
         console.log('Attempting to sign in...');
-        await signIn(email, password);
+        await signIn();
         console.log('Sign in successful');
       }
       setShowAuthModal(false);
@@ -137,7 +157,7 @@ const PromptLibrary = () => {
       console.error('Authentication error:', error);
       setError(error.message || 'An error occurred during authentication');
     }
-  };  
+  };
 
   const filteredPrompts = prompts.filter(prompt => 
     (selectedCategories.includes('All') || selectedCategories.includes(prompt.category)) &&
