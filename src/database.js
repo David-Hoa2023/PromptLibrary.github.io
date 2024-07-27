@@ -12,11 +12,15 @@ export const getData = async () => {
   return new Promise((resolve, reject) => {
     const user = netlifyIdentity.currentUser();
     if (!user) {
+      console.error('No user logged in');
       reject(new Error('No user logged in'));
       return;
     }
 
+    console.log('Current user:', user.email);
+
     user.jwt().then(token => {
+      console.log('JWT obtained successfully');
       console.log('Fetching data for user:', user.email);
       console.log('User token:', token.slice(0, 10) + '...');
 
@@ -27,19 +31,21 @@ export const getData = async () => {
       })
       .then(response => {
         console.log('Response status:', response.status);
-        return response.text();
+        return response.text().then(text => {
+          console.log('Response text:', text);
+          return { status: response.status, text };
+        });
       })
-      .then(responseText => {
-        console.log('Response text:', responseText);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.status} ${responseText}`);
+      .then(({ status, text }) => {
+        if (status !== 200) {
+          throw new Error(`Failed to fetch data: ${status} ${text}`);
         }
-        const data = JSON.parse(responseText);
+        const data = JSON.parse(text);
         console.log('getData response:', data);
         resolve(data);
       })
       .catch(error => {
-        console.error('Error in getData:', error);
+        console.error('Error in getData fetch:', error);
         reject(error);
       });
     }).catch(error => {
