@@ -5,33 +5,33 @@ export const getCurrentUser = () => {
   return netlifyIdentity.currentUser();
 };
 
-export const signUp = async () => {
-  return new Promise((resolve, reject) => {
-    netlifyIdentity.open('signup');
-    netlifyIdentity.on('login', user => {
-      netlifyIdentity.close();
-      resolve(user);
-    });
-    netlifyIdentity.on('error', err => {
-      netlifyIdentity.close();
-      reject(err);
-    });
-  });
-};
+// export const signUp = async () => {
+//   return new Promise((resolve, reject) => {
+//     netlifyIdentity.open('signup');
+//     netlifyIdentity.on('login', user => {
+//       netlifyIdentity.close();
+//       resolve(user);
+//     });
+//     netlifyIdentity.on('error', err => {
+//       netlifyIdentity.close();
+//       reject(err);
+//     });
+//   });
+// };
 
-export const signIn = async () => {
-  return new Promise((resolve, reject) => {
-    netlifyIdentity.open('login');
-    netlifyIdentity.on('login', user => {
-      netlifyIdentity.close();
-      resolve(user);
-    });
-    netlifyIdentity.on('error', err => {
-      netlifyIdentity.close();
-      reject(err);
-    });
-  });
-};
+// export const signIn = async () => {
+//   return new Promise((resolve, reject) => {
+//     netlifyIdentity.open('login');
+//     netlifyIdentity.on('login', user => {
+//       netlifyIdentity.close();
+//       resolve(user);
+//     });
+//     netlifyIdentity.on('error', err => {
+//       netlifyIdentity.close();
+//       reject(err);
+//     });
+//   });
+// };
 
 export const signOut = async () => {
   await netlifyIdentity.logout();
