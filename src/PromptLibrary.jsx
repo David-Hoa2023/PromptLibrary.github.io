@@ -67,28 +67,28 @@ const PromptLibrary = () => {
     }
   };
 
-  const handleSignIn = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.open('login');
-  };
+  // const handleSignIn = () => {
+  //   const netlifyIdentity = window.netlifyIdentity;
+  //   netlifyIdentity.open('login');
+  // };
 
-  const handleSignUp = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.open('signup');
-  };
+  // const handleSignUp = () => {
+  //   const netlifyIdentity = window.netlifyIdentity;
+  //   netlifyIdentity.open('signup');
+  // };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      setUser(null);
-      setPrompts([]);
-      setCategories(['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
-      setTags([]);
-    } catch (error) {
-      console.error('Sign out error:', error);
-      setError('Failed to sign out. Please try again.');
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await signOut();
+  //     setUser(null);
+  //     setPrompts([]);
+  //     setCategories(['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
+  //     setTags([]);
+  //   } catch (error) {
+  //     console.error('Sign out error:', error);
+  //     setError('Failed to sign out. Please try again.');
+  //   }
+  // };
 
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
