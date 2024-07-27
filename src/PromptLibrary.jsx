@@ -99,13 +99,25 @@ const PromptLibrary = () => {
     }
   };
 
+  // const addCategory = async () => {
+  //   const newCategory = prompt('Enter new category name:');
+  //   if (newCategory && !categories.includes(newCategory)) {
+  //     const newCategories = [...categories, newCategory];
+  //     setCategories(newCategories);
+  //     try {
+  //       await saveData('categories', newCategories);
+  //     } catch (err) {
+  //       setError('Failed to save category. Please try again.');
+  //     }
+  //   }
+  // };
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
     if (newCategory && !categories.includes(newCategory)) {
       const newCategories = [...categories, newCategory];
-      setCategories(newCategories);
       try {
         await saveData('categories', newCategories);
+        setCategories(newCategories);
       } catch (err) {
         setError('Failed to save category. Please try again.');
       }
