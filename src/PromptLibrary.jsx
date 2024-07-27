@@ -15,8 +15,11 @@ const PromptLibrary = () => {
   const [prompts, setPrompts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [tags, setTags] = useState([]);
+  const [isAddingPrompt, setIsAddingPrompt] = useState(false);  
   const [selectedTags, setSelectedTags] = useState([]);
   const [editingPrompt, setEditingPrompt] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -67,6 +70,16 @@ const PromptLibrary = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  const addPrompt = () => {
+    setEditingPrompt({
+      id: Date.now(),
+      name: '',
+      category: categories[1],
+      content: '',
+      tags: []
+    });
+    setIsAddingPrompt(true);
   };
 
   const addCategory = async () => {
