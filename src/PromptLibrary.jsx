@@ -192,7 +192,7 @@ const PromptLibrary = () => {
           <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
             <ul className="mb-4">
-              {categories.map(category => (
+              {['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận', ...categories].map(category => (
                 <li 
                   key={category} 
                   className="flex items-center cursor-pointer p-2"
@@ -230,10 +230,9 @@ const PromptLibrary = () => {
               ))}
             </div>
           </div>
-
           {/* Right section */}
           <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 mt-16"> {/* Added mt-16 for spacing */}
               <h2 className="text-xl font-bold">Prompt</h2>
               <button 
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -242,6 +241,8 @@ const PromptLibrary = () => {
                 Prompt mới
               </button>
             </div>
+
+         
             <div className="grid grid-cols-3 gap-4">
               {filteredPrompts.map(prompt => {
                 const bgColor = getLightPastelColor();
