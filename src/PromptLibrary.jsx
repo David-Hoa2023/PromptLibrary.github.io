@@ -23,6 +23,7 @@ const PromptLibrary = () => {
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.on('init', user => {
+      console.log('Netlify Identity initialized');
       setUser(user);
       if (user) {
         loadData();
@@ -31,13 +32,13 @@ const PromptLibrary = () => {
       }
     });
     netlifyIdentity.on('login', user => {
+      console.log('User logged in:', user);
       setUser(user);
-      if (rememberMe) {
-        netlifyIdentity.remember(true);
-      }
       loadData();
+      netlifyIdentity.close(); // Close the modal after successful login
     });
     netlifyIdentity.on('logout', () => {
+      console.log('User logged out');
       setUser(null);
       setIsLoading(false);
     });
@@ -48,7 +49,7 @@ const PromptLibrary = () => {
       netlifyIdentity.off('login');
       netlifyIdentity.off('logout');
     };
-  }, [rememberMe]);
+  }, []);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -63,6 +64,29 @@ const PromptLibrary = () => {
       setError('Failed to load data. Please try again later.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignIn = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.open('login');
+  };
+
+  const handleSignUp = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.open('signup');
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      setPrompts([]);
+      setCategories(['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
+      setTags([]);
+    } catch (error) {
+      console.error('Sign out error:', error);
+      setError('Failed to sign out. Please try again.');
     }
   };
 
