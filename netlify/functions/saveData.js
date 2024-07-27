@@ -1,42 +1,32 @@
 const { MongoClient } = require('mongodb');
 
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-exports.handler = async function(event, context) {
-  console.log('saveData function called');
-  let connection = null;
+exports.handler = async (event, context) => {
+  const client = new MongoClient(process.env.MONGODB_URI);
 
   try {
-    console.log('Attempting to connect to MongoDB');
-    connection = await client.connect();
-    console.log('Connected to MongoDB');
-
+    await client.connect();
     const database = client.db('promptLibrary');
     const collection = database.collection('data');
 
-    const { key, value } = JSON.parse(event.body);
-    console.log(`Saving data: key=${key}`);
+    const { user } = context.clientContext;
+    if (!user) {
+      return { statusCode: 401, body: 'Unauthorized' };
+    }
 
+    const { key, value } = JSON.parse(event.body);
     await collection.updateOne(
-      { key: key },
+      { userId: user.sub, key: key },
       { $set: { value: value } },
       { upsert: true }
     );
-
-    console.log('Data saved successfully');
 
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Data saved successfully' }),
     };
   } catch (error) {
-    console.error('Error in saveData:', error);
-    return { 
-      statusCode: 500, 
-      body: JSON.stringify({ error: error.message, stack: error.stack }) 
-    };
+    return { statusCode: 500, body: error.toString() };
   } finally {
-    if (connection) await client.close();
+    await client.close();
   }
 };
