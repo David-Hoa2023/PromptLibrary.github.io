@@ -53,20 +53,20 @@ const PromptLibrary = () => {
     };
   }, [rememberMe]);
 
-  const handleSignIn = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.open('login');
-  };
+  // const handleSignIn = () => {
+  //   const netlifyIdentity = window.netlifyIdentity;
+  //   netlifyIdentity.open('login');
+  // };
 
-  const handleSignUp = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.open('signup');
-  };
+  // const handleSignUp = () => {
+  //   const netlifyIdentity = window.netlifyIdentity;
+  //   netlifyIdentity.open('signup');
+  // };
 
-  const handleSignOut = async () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.logout();
-  };
+  // const handleSignOut = async () => {
+  //   const netlifyIdentity = window.netlifyIdentity;
+  //   netlifyIdentity.logout();
+  // };
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
