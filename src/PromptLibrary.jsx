@@ -1,79 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, X, LogIn, UserPlus, LogOut } from 'lucide-react';
-import { getCurrentUser, signOut, saveData, getAllData } from './database';
+import { getCurrentUser, signOut, saveData, getData } from './database';
 
-// Function to generate a random light pastel color
 const getLightPastelColor = () => {
   const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 70%, 90%)`; // Increased lightness to 90%
+  return `hsl(${hue}, 70%, 90%)`;
 };
 
 const PromptLibrary = () => {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
   const [prompts, setPrompts] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [editingPrompt, setEditingPrompt] = useState(null);
+  const [isAddingPrompt, setIsAddingPrompt] = useState(false);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  const [isAddingPrompt, setIsAddingPrompt] = useState(false);
-  const [newPrompt, setNewPrompt] = useState({
-    name: '',
-    category: '',
-    content: '',
-    tags: []
-  });
-  const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.on('init', user => {
-      setUser(user);
-      if (user) {
-        loadData();
-      }
-    });
-    netlifyIdentity.on('login', user => {
-      setUser(user);
-      loadData();
-      if (rememberMe) {
-        netlifyIdentity.remember(true);
-      }
-    });
-    netlifyIdentity.on('logout', () => {
-      setUser(null);
-    });
-    netlifyIdentity.init();
-
-    return () => {
-      netlifyIdentity.off('init');
-      netlifyIdentity.off('login');
-      netlifyIdentity.off('logout');
-    };
-  }, [rememberMe]);
-
-  useEffect(() => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.on('login', (user) => setUser(user));
-    netlifyIdentity.on('logout', () => setUser(null));
-    
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-
-    return () => {
-      netlifyIdentity.off('login');
-      netlifyIdentity.off('logout');
-    };
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      loadData();
-    }
-  }, [user]);
-
   const [isLoading, setIsLoading] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -87,6 +32,9 @@ const PromptLibrary = () => {
     });
     netlifyIdentity.on('login', user => {
       setUser(user);
+      if (rememberMe) {
+        netlifyIdentity.remember(true);
+      }
       loadData();
     });
     netlifyIdentity.on('logout', () => {
@@ -100,7 +48,7 @@ const PromptLibrary = () => {
       netlifyIdentity.off('login');
       netlifyIdentity.off('logout');
     };
-  }, []);
+  }, [rememberMe]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -116,7 +64,32 @@ const PromptLibrary = () => {
     } finally {
       setIsLoading(false);
     }
-  }; 
+  };
+
+  const addCategory = async () => {
+    const newCategory = prompt('Enter new category name:');
+    if (newCategory && !categories.includes(newCategory)) {
+      const newCategories = [...categories, newCategory];
+      try {
+        await saveData('categories', newCategories);
+        setCategories(newCategories);
+      } catch (err) {
+        console.error('Save category error:', err);
+        setError('Failed to save category. Please try again.');
+      }
+    }
+  };
+
+  const addPrompt = () => {
+    setEditingPrompt({
+      id: Date.now(),
+      name: '',
+      category: categories[1],
+      content: '',
+      tags: []
+    });
+    setIsAddingPrompt(true);
+  };
 
   const savePrompt = async (updatedPrompt) => {
     console.log('Saving prompt:', updatedPrompt);
@@ -126,7 +99,7 @@ const PromptLibrary = () => {
     }
     const newPrompts = prompts.some(p => p.id === updatedPrompt.id)
       ? prompts.map(p => p.id === updatedPrompt.id ? updatedPrompt : p)
-      : [...prompts, { ...updatedPrompt, id: Date.now() }];
+      : [...prompts, updatedPrompt];
     
     const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
 
@@ -139,50 +112,6 @@ const PromptLibrary = () => {
       setIsAddingPrompt(false);
     } catch (error) {
       console.error('Save prompt error:', error);
-      setError('Failed to save prompt. Please try again.');
-    }
-  };
-
-  const addCategory = async () => {
-    const newCategory = prompt('Enter new category name:');
-    if (newCategory && !categories.includes(newCategory)) {
-      const newCategories = [...categories, newCategory];
-      try {
-        await saveData('categories', newCategories);
-        setCategories(newCategories);
-      } catch (err) {
-        setError('Failed to save category. Please try again.');
-      }
-    }
-  };
-
-  const addPrompt = () => {
-    setNewPrompt({
-      name: '',
-      category: categories[0] || '',
-      content: '',
-      tags: []
-    });
-    setIsAddingPrompt(true);
-  };
-
-  const saveNewPrompt = async () => {
-    if (!newPrompt.name || !newPrompt.category || !newPrompt.content) {
-      setError('Please fill in all fields');
-      return;
-    }
-    const updatedPrompt = { ...newPrompt, id: Date.now() };
-    const newPrompts = [...prompts, updatedPrompt];
-    try {
-      await saveData('prompts', newPrompts);
-      setPrompts(newPrompts);
-      setIsAddingPrompt(false);
-      
-      // Update tags
-      const newTags = [...new Set([...tags, ...updatedPrompt.tags])];
-      await saveData('tags', newTags);
-      setTags(newTags);
-    } catch (err) {
       setError('Failed to save prompt. Please try again.');
     }
   };
@@ -230,6 +159,10 @@ const PromptLibrary = () => {
     (selectedCategories.includes('All') || selectedCategories.includes(prompt.category)) &&
     (selectedTags.length === 0 || selectedTags.some(tag => prompt.tags.includes(tag)))
   );
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -294,7 +227,7 @@ const PromptLibrary = () => {
           <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
             <ul className="mb-4">
-              {['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận', ...categories].map(category => (
+              {categories.map(category => (
                 <li 
                   key={category} 
                   className="flex items-center cursor-pointer p-2"
@@ -368,57 +301,56 @@ const PromptLibrary = () => {
             </div>
           </div>
 
-          {/* New Prompt Modal */}
-          {isAddingPrompt && (
+          {/* Edit/Add Prompt Modal */}
+          {editingPrompt && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
               <div className="bg-white p-6 rounded-lg w-2/3 h-2/3 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
                   <input 
                     className="text-xl font-bold"
-                    value={newPrompt.name}
-                    onChange={(e) => setNewPrompt({...newPrompt, name: e.target.value})}
+                    value={editingPrompt.name}
+                    onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
                     placeholder="Prompt Name"
                   />
-                  <button onClick={() => setIsAddingPrompt(false)}>
+                  <button onClick={() => setEditingPrompt(null)}>
                     <X size={24} />
                   </button>
                 </div>
                 <select 
                   className="mb-4 p-2 border rounded"
-                  value={newPrompt.category}
-                  onChange={(e) => setNewPrompt({...newPrompt, category: e.target.value})}
+                  value={editingPrompt.category}
+                  onChange={(e) => setEditingPrompt({...editingPrompt, category: e.target.value})}
                 >
-                  {['Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận', ...categories].map(category => (
+                  {categories.slice(1).map(category => (
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
                 <textarea 
                   className="flex-grow p-2 border rounded resize-none mb-4"
-                  value={newPrompt.content}
-                  onChange={(e) => setNewPrompt({...newPrompt, content: e.target.value})}
+                  value={editingPrompt.content}
+                  onChange={(e) => setEditingPrompt({...editingPrompt, content: e.target.value})}
                   placeholder="Prompt Content"
                 />
                 <div className="mb-4">
                   <input 
                     className="p-2 border rounded w-full"
                     placeholder="Add tags (comma-separated)"
-                    value={newPrompt.tags.join(', ')}
-                    onChange={(e) => setNewPrompt({
-                      ...newPrompt, 
-                      tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+                    value={editingPrompt.tags.join(', ')}
+                    onChange={(e) => setEditingPrompt({
+                      ...editingPrompt, 
+                      tags: e.target.value.split(',').map(tag => tag.trim().startsWith('#') ? tag.trim() : `#${tag.trim()}`).filter(tag => tag)
                     })}
                   />
                 </div>
                 <button 
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={saveNewPrompt}
+                  onClick={() => savePrompt(editingPrompt)}
                 >
-                  Save New Prompt
+                  Save Changes
                 </button>
               </div>
             </div>
           )}
-
         </>
       ) : (
         <div className="w-full flex items-center justify-center">
@@ -429,12 +361,4 @@ const PromptLibrary = () => {
   );
 };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    // ... rest of the component
-  );
-};
 export default PromptLibrary;
