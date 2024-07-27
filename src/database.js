@@ -55,19 +55,42 @@ export const saveData = async (key, value) => {
   }
 };
 
+// export const getAllData = async () => {
+//   const user = getCurrentUser();
+//   if (!user) throw new Error('No user logged in');
+
+//   const response = await fetch('/.netlify/functions/getAllData', {
+//     headers: {
+//       'Authorization': 'Bearer ' + user.token.access_token,
+//     },
+//   });
+  
+//   if (!response.ok) {
+//     throw new Error('Failed to fetch data');
+//   }
+  
+//   return response.json();
+// };
 export const getAllData = async () => {
   const user = getCurrentUser();
   if (!user) throw new Error('No user logged in');
 
-  const response = await fetch('/.netlify/functions/getAllData', {
-    headers: {
-      'Authorization': 'Bearer ' + user.token.access_token,
-    },
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch data');
+  try {
+    const response = await fetch('/.netlify/functions/getAllData', {
+      headers: {
+        'Authorization': 'Bearer ' + user.token.access_token,
+      },
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to fetch data:', response.status, errorText);
+      throw new Error(`Failed to fetch data: ${response.status} ${errorText}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('Error in getAllData:', error);
+    throw error;
   }
-  
-  return response.json();
 };
