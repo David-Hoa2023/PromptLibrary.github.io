@@ -5,22 +5,32 @@ export const getCurrentUser = () => {
   return netlifyIdentity.currentUser();
 };
 
-export const signUp = async (email, password) => {
-  try {
-    await netlifyIdentity.signup(email, password);
-  } catch (error) {
-    console.error('Sign up error:', error);
-    throw new Error(error.message || 'Failed to sign up');
-  }
+export const signUp = async () => {
+  return new Promise((resolve, reject) => {
+    netlifyIdentity.open('signup');
+    netlifyIdentity.on('login', user => {
+      netlifyIdentity.close();
+      resolve(user);
+    });
+    netlifyIdentity.on('error', err => {
+      netlifyIdentity.close();
+      reject(err);
+    });
+  });
 };
 
-export const signIn = async (email, password) => {
-  try {
-    await netlifyIdentity.login(email, password);
-  } catch (error) {
-    console.error('Sign in error:', error);
-    throw new Error(error.message || 'Failed to sign in');
-  }
+export const signIn = async () => {
+  return new Promise((resolve, reject) => {
+    netlifyIdentity.open('login');
+    netlifyIdentity.on('login', user => {
+      netlifyIdentity.close();
+      resolve(user);
+    });
+    netlifyIdentity.on('error', err => {
+      netlifyIdentity.close();
+      reject(err);
+    });
+  });
 };
 
 export const signOut = async () => {
