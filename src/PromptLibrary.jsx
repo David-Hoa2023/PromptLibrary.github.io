@@ -22,34 +22,58 @@ const PromptLibrary = () => {
   const [isAdmin, setIsAdmin] = useState(false); // You'll need to set this based on user role
 
   useEffect(() => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.on('init', user => {
-      console.log('Netlify Identity initialized', user);
-      setUser(user);
-      if (user) {
-        loadData();
-      } else {
-        setIsLoading(false);
-      }
-    });
-    netlifyIdentity.on('login', user => {
-      console.log('User logged in:', user);
-      setUser(user);
+  const netlifyIdentity = window.netlifyIdentity;
+  
+  const handleUser = async (user) => {
+    console.log('Netlify Identity initialized/User logged in:', user);
+    setUser(user);
+    if (user) {
+      // Check if the user is an admin
+      const adminStatus = await checkIfAdmin(user);
+      setIsAdmin(adminStatus);
       loadData();
-    });
-    netlifyIdentity.on('logout', () => {
-      console.log('User logged out');
-      setUser(null);
+    } else {
       setIsLoading(false);
-    });
-    netlifyIdentity.init();
+      setIsAdmin(false);
+    }
+  };
 
-    return () => {
-      netlifyIdentity.off('init');
-      netlifyIdentity.off('login');
-      netlifyIdentity.off('logout');
-    };
-  }, []);
+  netlifyIdentity.on('init', handleUser);
+  netlifyIdentity.on('login', handleUser);
+  netlifyIdentity.on('logout', () => {
+    console.log('User logged out');
+    setUser(null);
+    setIsLoading(false);
+    setIsAdmin(false);
+  });
+  netlifyIdentity.init();
+
+  return () => {
+    netlifyIdentity.off('init');
+    netlifyIdentity.off('login');
+    netlifyIdentity.off('logout');
+  };
+}, []);
+
+const checkIfAdmin = async (user) => {
+  try {
+    const response = await fetch('/.netlify/functions/getUserRole', {
+      headers: {
+        'Authorization': `Bearer ${user.token.access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user role');
+    }
+
+    const { role } = await response.json();
+    return role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+};
 
   //  const saveComment = async () => {
   //   try {
