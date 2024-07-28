@@ -81,6 +81,30 @@ const PromptLibrary = () => {
     setIsAddingPrompt(true);
   };
 
+  const savePrompt = async (promptToSave) => {
+    try {
+      let updatedPrompts;
+      if (promptToSave.id) {
+        // Updating existing prompt
+        updatedPrompts = prompts.map(p => 
+          p.id === promptToSave.id ? promptToSave : p
+        );
+      } else {
+        // Adding new prompt
+        const newPrompt = {...promptToSave, id: Date.now()};
+        updatedPrompts = [...prompts, newPrompt];
+      }
+      
+      await saveData('prompts', updatedPrompts);
+      setPrompts(updatedPrompts);
+      setEditingPrompt(null);
+      console.log('Prompt saved successfully');
+    } catch (error) {
+      console.error('Error saving prompt:', error);
+      setError('Failed to save prompt. Please try again.');
+    }
+  };
+
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
     if (newCategory && !categories.includes(newCategory)) {
