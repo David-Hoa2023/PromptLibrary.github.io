@@ -216,17 +216,7 @@ const PromptLibrary = () => {
       {editingPrompt && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg w-2/3 h-2/3 flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-              <input 
-                className="text-xl font-bold w-full"
-                value={editingPrompt.name}
-                onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
-                placeholder="Prompt Name"
-              />
-              <button onClick={() => setEditingPrompt(null)}>
-                <X size={24} />
-              </button>
-            </div>
+            {/* ... (keep other modal content) */}
             <select 
               className="mb-4 p-2 border rounded"
               value={editingPrompt.category}
@@ -236,29 +226,7 @@ const PromptLibrary = () => {
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
-            <textarea 
-              className="flex-grow p-2 border rounded resize-none mb-4"
-              value={editingPrompt.content}
-              onChange={(e) => setEditingPrompt({...editingPrompt, content: e.target.value})}
-              placeholder="Prompt Content"
-            />
-            <div className="mb-4">
-              <input 
-                className="p-2 border rounded w-full"
-                placeholder="Add tags (comma-separated)"
-                value={editingPrompt.tags.join(', ')}
-                onChange={(e) => setEditingPrompt({
-                  ...editingPrompt, 
-                  tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
-                })}
-              />
-            </div>
-            <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={() => savePrompt(editingPrompt)}
-            >
-              {editingPrompt.id ? 'Update Prompt' : 'Add Prompt'}
-            </button>
+            {/* ... (keep other modal content) */}
           </div>
         </div>
       )}
