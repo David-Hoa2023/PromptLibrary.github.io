@@ -70,24 +70,30 @@ const PromptLibrary = () => {
   //     setIsLoading(false);
   //   }
   // };
+
+
   const loadData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log('Starting to load data');
-      const data = await getData();
-      console.log('Loaded data:', data);
-      setCategories(['All', ...data.categories]);
-      setPrompts(data.prompts);
-      setTags(data.tags);
+  setIsLoading(true);
+  setError(null);
+  try {
+    console.log('Starting to load data');
+    const data = await getData();
+    console.log('Loaded data:', data);
+    if (data && typeof data === 'object') {
+      setCategories(['All', ...(data.categories || [])]);
+      setPrompts(data.prompts || []);
+      setTags(data.tags || []);
       console.log('Data successfully set in state');
-    } catch (err) {
-      console.error('Load data error:', err);
-      setError(`Failed to load data: ${err.message}`);
-    } finally {
-      setIsLoading(false);
+    } else {
+      throw new Error('Received invalid data format');
     }
-  };
+  } catch (err) {
+    console.error('Load data error:', err);
+    setError(`Failed to load data: ${err.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
   
   const addPrompt = () => {
     setEditingPrompt({
