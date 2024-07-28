@@ -52,6 +52,24 @@ const PromptLibrary = () => {
     };
   }, []);
 
+  // const loadData = async () => {
+  //   setIsLoading(true);
+  //   setError(null);
+  //   try {
+  //     console.log('Starting to load data');
+  //     const data = await getData();
+  //     console.log('Loaded data:', data);
+  //     setCategories(data.categories || ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
+  //     setPrompts(data.prompts || []);
+  //     setTags(data.tags || []);
+  //     console.log('Data successfully set in state');
+  //   } catch (err) {
+  //     console.error('Load data error:', err);
+  //     setError(`Failed to load data: ${err.message}`);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
@@ -59,9 +77,9 @@ const PromptLibrary = () => {
       console.log('Starting to load data');
       const data = await getData();
       console.log('Loaded data:', data);
-      setCategories(data.categories || ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận']);
-      setPrompts(data.prompts || []);
-      setTags(data.tags || []);
+      setCategories(['All', ...data.categories]);
+      setPrompts(data.prompts);
+      setTags(data.tags);
       console.log('Data successfully set in state');
     } catch (err) {
       console.error('Load data error:', err);
@@ -70,6 +88,7 @@ const PromptLibrary = () => {
       setIsLoading(false);
     }
   };
+  
   const addPrompt = () => {
     setEditingPrompt({
       id: Date.now(),
