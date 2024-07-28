@@ -1,4 +1,10 @@
 const { MongoClient } = require('mongodb');
+const result = {
+  categories: (userData && userData.categories) || [],
+  prompts: (userData && userData.prompts) || [],
+  tags: (userData && userData.tags) || [],
+  comment: userData && userData.comment
+};
 
 exports.handler = async (event, context) => {
   console.log('getData function called');
