@@ -249,9 +249,15 @@ const PromptLibrary = () => {
                     onChange={(e) => setEditingPrompt({...editingPrompt, name: e.target.value})}
                     placeholder="Prompt Name"
                   />
-                  <button onClick={() => setEditingPrompt(null)}>
-                    <X size={24} />
+                  <button 
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    onClick={() => savePrompt(editingPrompt)}
+                  >
+                    {editingPrompt.id ? 'Update Prompt' : 'Add Prompt'}
                   </button>
+{/*                   <button onClick={() => setEditingPrompt(null)}>
+                    <X size={24} />
+                  </button> */}
                 </div>
                 <select 
                   className="mb-4 p-2 border rounded"
