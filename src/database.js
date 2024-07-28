@@ -27,13 +27,13 @@ export const getData = async () => {
       })
       .then(response => {
         console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         return response.text();
       })
       .then(responseText => {
         console.log('Response text:', responseText);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.status} ${responseText}`);
-        }
         const data = JSON.parse(responseText);
         console.log('getData response:', data);
         // Ensure the data has the expected structure
