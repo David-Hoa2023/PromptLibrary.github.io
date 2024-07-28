@@ -18,6 +18,8 @@ const PromptLibrary = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [editingPrompt, setEditingPrompt] = useState(null);
   const [comment, setComment] = useState('');
+  const [savedComments, setSavedComments] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false); // You'll need to set this based on user role
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -49,15 +51,30 @@ const PromptLibrary = () => {
     };
   }, []);
 
-   const saveComment = async () => {
+  //  const saveComment = async () => {
+  //   try {
+  //     await saveData('comment', comment);
+  //     console.log('Comment saved successfully');
+  //   } catch (err) {
+  //     console.error('Save comment error:', err);
+  //     setError('Failed to save comment. Please try again.');
+  //   }
+  // };
+  const saveComment = async () => {
     try {
-      await saveData('comment', comment);
+      const newComment = { id: Date.now(), text: comment };
+      const updatedComments = [...savedComments, newComment];
+      await saveData('comments', updatedComments);
+      setSavedComments(updatedComments);
+      setComment('');
       console.log('Comment saved successfully');
     } catch (err) {
       console.error('Save comment error:', err);
       setError('Failed to save comment. Please try again.');
     }
   };
+
+  
    // Extract unique hashtags from all prompts
   const allHashtags = [...new Set(prompts.flatMap(prompt => prompt.tags))];
 
@@ -88,9 +105,7 @@ const PromptLibrary = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
- 
+  }; 
 
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
@@ -143,7 +158,7 @@ const PromptLibrary = () => {
   }
   
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100">    
       {/* Left section */}
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
@@ -171,6 +186,7 @@ const PromptLibrary = () => {
           <PlusCircle className="mr-2" size={20} />
           Thêm Loại Prompt
         </button>
+        
         <h3 className="font-bold mb-2">Tags</h3>
         <div className="flex flex-wrap gap-2 mb-4">
           {tags.map(tag => (
@@ -189,6 +205,7 @@ const PromptLibrary = () => {
             </span>
           ))}
         </div>
+      
         <h3 className="font-bold mb-2">Hashtags from Prompts</h3>
         <div className="flex flex-wrap gap-2 mb-4">
           {allHashtags.map(hashtag => (
@@ -200,6 +217,8 @@ const PromptLibrary = () => {
             </span>
           ))}
         </div>
+      
+        {/* Comment Section */}
         <h3 className="font-bold mb-2">Your Comment</h3>
         <textarea
           className="w-full p-2 border rounded mb-2"
@@ -212,8 +231,54 @@ const PromptLibrary = () => {
           className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-700"
           onClick={saveComment}
         >
-          Save Comment
+          Gửi
         </button>
+        <div className="mt-4">
+          <h4 className="font-bold mb-2">Saved Comments:</h4>
+          {savedComments.map((savedComment) => (
+            <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
+          ))}
+        </div>
+      
+        {/* Admin Controls (if user is admin) */}
+        {isAdmin && (
+          <div className="mt-8">
+            <h3 className="font-bold mb-2">Admin Controls</h3>
+            <div className="mb-4">
+              <h4 className="font-semibold">Categories</h4>
+              {categories.filter(c => c !== 'All').map(category => (
+                <AdminCategoryControl 
+                  key={category}
+                  category={category}
+                  onEdit={editCategory}
+                  onDelete={deleteCategory}
+                />
+              ))}
+            </div>
+            <div className="mb-4">
+              <h4 className="font-semibold">Prompts</h4>
+              {prompts.map(prompt => (
+                <AdminPromptControl 
+                  key={prompt.id}
+                  prompt={prompt}
+                  onEdit={editPrompt}
+                  onDelete={deletePrompt}
+                />
+              ))}
+            </div>
+            <div className="mb-4">
+              <h4 className="font-semibold">Tags</h4>
+              {tags.map(tag => (
+                <AdminTagControl 
+                  key={tag}
+                  tag={tag}
+                  onEdit={editTag}
+                  onDelete={deleteTag}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right section */}
