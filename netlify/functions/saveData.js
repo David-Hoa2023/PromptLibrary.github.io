@@ -15,12 +15,15 @@ exports.handler = async (event, context) => {
     const collection = database.collection('userData');
 
     const { key, value } = JSON.parse(event.body);
+    console.log('Saving data:', { key, value });
+
     await collection.updateOne(
-      { userId, key },
-      { $set: { value } },
+      { userId },
+      { $set: { [key]: value } },
       { upsert: true }
     );
 
+    console.log('Data saved successfully');
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Data saved successfully' }),
