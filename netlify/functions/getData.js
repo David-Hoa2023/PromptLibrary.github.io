@@ -6,11 +6,15 @@ exports.handler = async (event, context) => {
 
   try {
     if (!context.clientContext.user) {
+      console.log('No authenticated user');
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
     const userId = context.clientContext.user.sub;
+    console.log('User ID:', userId);
+
     await client.connect();
+    console.log('Connected to MongoDB');
     const database = client.db('promptLibrary');
     const collection = database.collection('userData');
 
