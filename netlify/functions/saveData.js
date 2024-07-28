@@ -18,8 +18,15 @@ exports.handler = async (event, context) => {
     const database = client.db('promptLibrary');
     const collection = database.collection('userData');
 
+    // const { key, value } = JSON.parse(event.body);
+    // console.log('Saving data:', { key, value });
+    // In saveData.js
     const { key, value } = JSON.parse(event.body);
-    console.log('Saving data:', { key, value });
+    await collection.updateOne(
+      { userId },
+      { $set: { [key]: value } },
+      { upsert: true }
+    );
 
     await collection.updateOne(
       { userId },
