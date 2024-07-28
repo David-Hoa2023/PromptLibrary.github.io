@@ -21,11 +21,18 @@ exports.handler = async (event, context) => {
     const userData = await collection.findOne({ userId });
     console.log('User data:', userData);
 
+    // const result = {
+    //   categories: (userData && userData.categories) || [],
+    //   prompts: (userData && userData.prompts) || [],
+    //   tags: (userData && userData.tags) || [],
+    //   comment: userData && userData.comment
+    // };
+    // In getData.js
     const result = {
       categories: (userData && userData.categories) || [],
       prompts: (userData && userData.prompts) || [],
       tags: (userData && userData.tags) || [],
-      comment: userData && userData.comment
+      comments: (userData && userData.comments) || []
     };
 
     console.log('Returning data:', result);
