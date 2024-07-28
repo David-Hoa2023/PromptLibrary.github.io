@@ -14,13 +14,13 @@ exports.handler = async (event, context) => {
     const database = client.db('promptLibrary');
     const collection = database.collection('userData');
 
-    const data = await collection.findOne({ userId });
+    const userData = await collection.findOne({ userId });
+    console.log('User data:', userData);
 
-    // Ensure we always return an object with categories, prompts, and tags
     const result = {
-      categories: (data && data.categories) || [],
-      prompts: (data && data.prompts) || [],
-      tags: (data && data.tags) || []
+      categories: (userData && userData.categories) || [],
+      prompts: (userData && userData.prompts) || [],
+      tags: (userData && userData.tags) || []
     };
 
     console.log('Returning data:', result);
