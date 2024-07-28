@@ -27,21 +27,13 @@ export const getData = async () => {
       })
       .then(response => {
         console.log('Response status:', response.status);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
         return response.text();
       })
       .then(responseText => {
         console.log('Response text:', responseText);
         const data = JSON.parse(responseText);
         console.log('getData response:', data);
-        // Ensure the data has the expected structure
-        resolve({
-          categories: data.categories || [],
-          prompts: data.prompts || [],
-          tags: data.tags || []
-        });
+        resolve(data);
       })
       .catch(error => {
         console.error('Error in getData:', error);
@@ -63,7 +55,7 @@ export const saveData = async (key, value) => {
     }
 
     user.jwt().then(token => {
-      console.log(`Saving data for key: ${key}`);
+      console.log(`Saving data for key: ${key}`, value);
       console.log('User token:', token.slice(0, 10) + '...');
 
       fetch('/.netlify/functions/saveData', {
@@ -80,9 +72,6 @@ export const saveData = async (key, value) => {
       })
       .then(responseText => {
         console.log('Response text:', responseText);
-        if (!response.ok) {
-          throw new Error(`Failed to save data: ${response.status} ${responseText}`);
-        }
         const result = JSON.parse(responseText);
         console.log('saveData response:', result);
         resolve(result);
