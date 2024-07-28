@@ -17,6 +17,7 @@ const PromptLibrary = () => {
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [editingPrompt, setEditingPrompt] = useState(null);
+  const [comment, setComment] = useState('');
 
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
@@ -48,6 +49,18 @@ const PromptLibrary = () => {
     };
   }, []);
 
+   const saveComment = async () => {
+    try {
+      await saveData('comment', comment);
+      console.log('Comment saved successfully');
+    } catch (err) {
+      console.error('Save comment error:', err);
+      setError('Failed to save comment. Please try again.');
+    }
+  };
+   // Extract unique hashtags from all prompts
+  const allHashtags = [...new Set(prompts.flatMap(prompt => prompt.tags))];
+
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
@@ -64,6 +77,7 @@ const PromptLibrary = () => {
         setPrompts(data.prompts || []);
         console.log('Prompts set:', data.prompts || []);
         setTags(data.tags || []);
+        setComment(data.comment || '');
         console.log('Data successfully set in state');
       } else {
         throw new Error('Received invalid data format');
@@ -75,6 +89,8 @@ const PromptLibrary = () => {
       setIsLoading(false);
     }
   };
+
+ 
 
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
@@ -125,7 +141,7 @@ const PromptLibrary = () => {
   if (error) {
     return <div>Error: {error}</div>;
   }
-
+  
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Left section */}
@@ -156,7 +172,7 @@ const PromptLibrary = () => {
           Thêm Loại Prompt
         </button>
         <h3 className="font-bold mb-2">Tags</h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-4">
           {tags.map(tag => (
             <span 
               key={tag}
@@ -173,6 +189,31 @@ const PromptLibrary = () => {
             </span>
           ))}
         </div>
+        <h3 className="font-bold mb-2">Hashtags from Prompts</h3>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {allHashtags.map(hashtag => (
+            <span 
+              key={hashtag}
+              className="px-2 py-1 rounded-full text-sm bg-gray-200"
+            >
+              {hashtag}
+            </span>
+          ))}
+        </div>
+        <h3 className="font-bold mb-2">Your Comment</h3>
+        <textarea
+          className="w-full p-2 border rounded mb-2"
+          rows="4"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Write your comment here..."
+        ></textarea>
+        <button 
+          className="w-full py-2 bg-green-500 text-white rounded hover:bg-green-700"
+          onClick={saveComment}
+        >
+          Save Comment
+        </button>
       </div>
 
       {/* Right section */}
