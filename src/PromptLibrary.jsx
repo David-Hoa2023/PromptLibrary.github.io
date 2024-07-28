@@ -56,7 +56,9 @@ const PromptLibrary = () => {
       const data = await getData();
       console.log('Loaded data:', data);
       if (data && typeof data === 'object') {
-        const newCategories = ['All', ...(data.categories || [])];
+        const defaultCategories = ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'];
+        const dbCategories = data.categories || [];
+        const newCategories = [...new Set([...defaultCategories, ...dbCategories])];
         setCategories(newCategories);
         console.log('Categories set:', newCategories);
         setPrompts(data.prompts || []);
@@ -87,6 +89,8 @@ const PromptLibrary = () => {
         console.error('Save category error:', err);
         setError('Failed to save category. Please try again.');
       }
+    } else if (categories.includes(newCategory)) {
+      setError('This category already exists.');
     }
   };
 
@@ -232,6 +236,7 @@ const PromptLibrary = () => {
               value={editingPrompt.category}
               onChange={(e) => setEditingPrompt({...editingPrompt, category: e.target.value})}
             >
+              <option value="">Select a category</option>
               {categories.filter(category => category !== 'All').map(category => (
                 <option key={category} value={category}>{category}</option>
               ))}
@@ -255,13 +260,19 @@ const PromptLibrary = () => {
             </div>
             <button 
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={() => savePrompt(editingPrompt)}
+              onClick={() => {
+                if (!editingPrompt.name || !editingPrompt.category || !editingPrompt.content) {
+                  setError('Please fill in all required fields (Name, Category, and Content).');
+                  return;
+                }
+                savePrompt(editingPrompt);
+              }}
             >
               {editingPrompt.id ? 'Update Prompt' : 'Add Prompt'}
             </button>
           </div>
         </div>
-      )}
+      )}      
     </div>
   );
 };
