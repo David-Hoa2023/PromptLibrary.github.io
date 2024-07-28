@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, X, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { PlusCircle, X } from 'lucide-react';
 import { getCurrentUser, signOut, saveData, getData } from './database';
 
 const getLightPastelColor = () => {
@@ -21,7 +21,7 @@ const PromptLibrary = () => {
   useEffect(() => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.on('init', user => {
-      console.log('Netlify Identity initialized');
+      console.log('Netlify Identity initialized', user);
       setUser(user);
       if (user) {
         loadData();
@@ -60,6 +60,7 @@ const PromptLibrary = () => {
         setCategories(newCategories);
         console.log('Categories set:', newCategories);
         setPrompts(data.prompts || []);
+        console.log('Prompts set:', data.prompts || []);
         setTags(data.tags || []);
         console.log('Data successfully set in state');
       } else {
@@ -76,8 +77,9 @@ const PromptLibrary = () => {
   const addCategory = async () => {
     const newCategory = prompt('Enter new category name:');
     if (newCategory && !categories.includes(newCategory)) {
-      const newCategories = [...categories, newCategory].filter(cat => cat !== 'All');
+      const newCategories = [...categories.filter(cat => cat !== 'All'), newCategory];
       try {
+        console.log('Saving categories:', newCategories);
         await saveData('categories', newCategories);
         setCategories(['All', ...newCategories]);
         console.log('Category added successfully:', newCategory);
@@ -92,16 +94,11 @@ const PromptLibrary = () => {
     try {
       let updatedPrompts;
       if (promptToSave.id) {
-        // Updating existing prompt
-        updatedPrompts = prompts.map(p => 
-          p.id === promptToSave.id ? promptToSave : p
-        );
+        updatedPrompts = prompts.map(p => p.id === promptToSave.id ? promptToSave : p);
       } else {
-        // Adding new prompt
-        const newPrompt = {...promptToSave, id: Date.now()};
-        updatedPrompts = [...prompts, newPrompt];
+        updatedPrompts = [...prompts, { ...promptToSave, id: Date.now() }];
       }
-      
+      console.log('Saving prompts:', updatedPrompts);
       await saveData('prompts', updatedPrompts);
       setPrompts(updatedPrompts);
       setEditingPrompt(null);
@@ -135,7 +132,7 @@ const PromptLibrary = () => {
             <li 
               key={category} 
               className="flex items-center cursor-pointer p-2"
-              onClick={() => toggleCategory(category)}
+              onClick={() => setSelectedCategories(category === 'All' ? ['All'] : [category])}
             >
               <input 
                 type="checkbox" 
@@ -154,7 +151,24 @@ const PromptLibrary = () => {
           <PlusCircle className="mr-2" size={20} />
           Thêm Loại Prompt
         </button>
-        {/* ... rest of the left section ... */}
+        <h3 className="font-bold mb-2">Tags</h3>
+        <div className="flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <span 
+              key={tag}
+              className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
+                selectedTags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
+              }`}
+              onClick={() => setSelectedTags(
+                selectedTags.includes(tag)
+                  ? selectedTags.filter(t => t !== tag)
+                  : [...selectedTags, tag]
+              )}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Right section */}
@@ -166,7 +180,7 @@ const PromptLibrary = () => {
             onClick={() => setEditingPrompt({
               id: null,
               name: '',
-              category: categories[1] || '',
+              category: categories.length > 1 ? categories[1] : '',
               content: '',
               tags: []
             })}
