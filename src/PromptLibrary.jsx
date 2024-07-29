@@ -139,16 +139,7 @@ const checkIfAdmin = async (user) => {
     return false;
   }
 };
-
-  //  const saveComment = async () => {
-  //   try {
-  //     await saveData('comment', comment);
-  //     console.log('Comment saved successfully');
-  //   } catch (err) {
-  //     console.error('Save comment error:', err);
-  //     setError('Failed to save comment. Please try again.');
-  //   }
-  // };
+  
   const saveComment = async () => {
     try {
       const newComment = { id: Date.now(), text: comment };
@@ -250,10 +241,31 @@ const checkIfAdmin = async (user) => {
     <div className="flex h-screen bg-gray-100">    
       {/* Left section */}
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
-        
+        <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
+          {categories.length > 0 ? (
+            <ul className="mb-4">
+              {categories.map(category => (
+                <li 
+                  key={category} 
+                  className="flex items-center cursor-pointer p-2"
+                  onClick={() => setSelectedCategories(category === 'All' ? ['All'] : [category])}
+                >
+                  <input 
+                    type="checkbox" 
+                    checked={selectedCategories.includes(category)}
+                    readOnly
+                    className="mr-2"
+                  />
+                  {category}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No categories available</p>
+          )}
 
         
-        <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
+{/*         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
         <ul className="mb-4">
           {categories.map(category => (
             <li 
@@ -270,7 +282,7 @@ const checkIfAdmin = async (user) => {
               {category}
             </li>
           ))}
-        </ul>
+        </ul> */}
         <button 
           className="w-full mb-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 flex items-center justify-center"
           onClick={addCategory}
