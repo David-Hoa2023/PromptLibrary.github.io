@@ -55,40 +55,6 @@ const PromptLibrary = () => {
   const [savedComments, setSavedComments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false); // You'll need to set this based on user role
 
-//   useEffect(() => {
-//   const netlifyIdentity = window.netlifyIdentity;
-  
-//   const handleUser = async (user) => {
-//     console.log('Netlify Identity initialized/User logged in:', user);
-//     setUser(user);
-//     if (user) {
-//       // Check if the user is an admin
-//       const adminStatus = await checkIfAdmin(user);
-//       setIsAdmin(adminStatus);
-//       loadData();
-//     } else {
-//       setIsLoading(false);
-//       setIsAdmin(false);
-//     }
-//   };
-
-//   netlifyIdentity.on('init', handleUser);
-//   netlifyIdentity.on('login', handleUser);
-//   netlifyIdentity.on('logout', () => {
-//     console.log('User logged out');
-//     setUser(null);
-//     setIsLoading(false);
-//     setIsAdmin(false);
-//   });
-//   netlifyIdentity.init();
-
-//   return () => {
-//     netlifyIdentity.off('init');
-//     netlifyIdentity.off('login');
-//     netlifyIdentity.off('logout');
-//   };
-// }, []);
-
 useEffect(() => {
   const netlifyIdentity = window.netlifyIdentity;
   
@@ -369,25 +335,7 @@ const checkIfAdmin = async (user) => {
             <p>No categories available</p>
           )}
 
-        
-{/*         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
-        <ul className="mb-4">
-          {categories.map(category => (
-            <li 
-              key={category} 
-              className="flex items-center cursor-pointer p-2"
-              onClick={() => setSelectedCategories(category === 'All' ? ['All'] : [category])}
-            >
-              <input 
-                type="checkbox" 
-                checked={selectedCategories.includes(category)}
-                readOnly
-                className="mr-2"
-              />
-              {category}
-            </li>
-          ))}
-        </ul> */}
+
         <button 
           className="w-full mb-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 flex items-center justify-center"
           onClick={addCategory}
@@ -449,7 +397,7 @@ const checkIfAdmin = async (user) => {
           ))}
         </div>
 
-        // Add this section in your JSX, preferably in the left panel where you have other admin controls:
+       
         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
