@@ -1,6 +1,40 @@
+// import { useState } from 'react';
+import { Edit, Trash2 } from 'lucide-react';
+
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, X } from 'lucide-react';
 import { getCurrentUser, signOut, saveData, getData } from './database';
+
+// Add these new components here
+const AdminCategoryControl = ({ category, onEdit, onDelete }) => (
+  <div className="flex items-center justify-between p-2 border-b">
+    <span>{category}</span>
+    <div>
+      <button onClick={() => onEdit(category)} className="mr-2 text-blue-500"><Edit size={16} /></button>
+      <button onClick={() => onDelete(category)} className="text-red-500"><Trash2 size={16} /></button>
+    </div>
+  </div>
+);
+
+const AdminPromptControl = ({ prompt, onEdit, onDelete }) => (
+  <div className="flex items-center justify-between p-2 border-b">
+    <span>{prompt.name}</span>
+    <div>
+      <button onClick={() => onEdit(prompt)} className="mr-2 text-blue-500"><Edit size={16} /></button>
+      <button onClick={() => onDelete(prompt)} className="text-red-500"><Trash2 size={16} /></button>
+    </div>
+  </div>
+);
+
+const AdminTagControl = ({ tag, onEdit, onDelete }) => (
+  <div className="flex items-center justify-between p-2 border-b">
+    <span>{tag}</span>
+    <div>
+      <button onClick={() => onEdit(tag)} className="mr-2 text-blue-500"><Edit size={16} /></button>
+      <button onClick={() => onDelete(tag)} className="text-red-500"><Trash2 size={16} /></button>
+    </div>
+  </div>
+);
 
 const getLightPastelColor = () => {
   const hue = Math.floor(Math.random() * 360);
@@ -69,6 +103,77 @@ useEffect(() => {
     } else {
       setIsLoading(false);
       setIsAdmin(false);
+    }
+  };
+
+  // In your PromptLibrary component, add these new functions:
+
+  const editCategory = async (category) => {
+    const newName = prompt(`Enter new name for category "${category}":`, category);
+    if (newName && newName !== category) {
+      try {
+        await saveData('editCategory', { oldName: category, newName });
+        setCategories(categories.map(c => c === category ? newName : c));
+      } catch (error) {
+        setError('Failed to edit category. Please try again.');
+      }
+    }
+  };
+  
+  const deleteCategory = async (category) => {
+    if (window.confirm(`Are you sure you want to delete the category "${category}"?`)) {
+      try {
+        await saveData('deleteCategory', category);
+        setCategories(categories.filter(c => c !== category));
+      } catch (error) {
+        setError('Failed to delete category. Please try again.');
+      }
+    }
+  };
+  
+  const editPrompt = (prompt) => {
+    setEditingPrompt(prompt);
+  };
+  
+  const deletePrompt = async (prompt) => {
+    if (window.confirm(`Are you sure you want to delete the prompt "${prompt.name}"?`)) {
+      try {
+        await saveData('deletePrompt', prompt.id);
+        setPrompts(prompts.filter(p => p.id !== prompt.id));
+      } catch (error) {
+        setError('Failed to delete prompt. Please try again.');
+      }
+    }
+  };
+  
+  const editTag = async (tag) => {
+    const newTag = prompt(`Enter new name for tag "${tag}":`, tag);
+    if (newTag && newTag !== tag) {
+      try {
+        await saveData('editTag', { oldTag: tag, newTag });
+        setTags(tags.map(t => t === tag ? newTag : t));
+        setPrompts(prompts.map(p => ({
+          ...p,
+          tags: p.tags.map(t => t === tag ? newTag : t)
+        })));
+      } catch (error) {
+        setError('Failed to edit tag. Please try again.');
+      }
+    }
+  };
+  
+  const deleteTag = async (tag) => {
+    if (window.confirm(`Are you sure you want to delete the tag "${tag}"?`)) {
+      try {
+        await saveData('deleteTag', tag);
+        setTags(tags.filter(t => t !== tag));
+        setPrompts(prompts.map(p => ({
+          ...p,
+          tags: p.tags.filter(t => t !== tag)
+        })));
+      } catch (error) {
+        setError('Failed to delete tag. Please try again.');
+      }
     }
   };
 
@@ -310,7 +415,7 @@ const checkIfAdmin = async (user) => {
           ))}
         </div>
       
-        <h3 className="font-bold mb-2">Hashtags from Prompts</h3>
+{/*         <h3 className="font-bold mb-2">Hashtags from Prompts</h3> */}
         <div className="flex flex-wrap gap-2 mb-4">
           {allHashtags.map(hashtag => (
             <span 
@@ -343,8 +448,8 @@ const checkIfAdmin = async (user) => {
             <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
           ))}
         </div>
-      
-        {/* Admin Controls (if user is admin) */}
+
+        // Add this section in your JSX, preferably in the left panel where you have other admin controls:
         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
@@ -383,7 +488,7 @@ const checkIfAdmin = async (user) => {
             </div>
           </div>
         )}
-      </div>
+
 
       {/* Right section */}
       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
