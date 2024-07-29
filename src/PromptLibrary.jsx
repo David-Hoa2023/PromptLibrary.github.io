@@ -65,12 +65,29 @@ useEffect(() => {
       // Check if the user is an admin
       const adminStatus = await checkIfAdmin(user);
       setIsAdmin(adminStatus);
-      await loadData();
+      loadData();
     } else {
       setIsLoading(false);
       setIsAdmin(false);
     }
   };
+  
+  netlifyIdentity.on('init', handleUser);
+  netlifyIdentity.on('login', handleUser);
+  netlifyIdentity.on('logout', () => {
+    console.log('User logged out');
+    setUser(null);
+    setIsLoading(false);
+    setIsAdmin(false);
+  });
+  netlifyIdentity.init();
+  
+  return () => {
+    netlifyIdentity.off('init');
+    netlifyIdentity.off('login');
+    netlifyIdentity.off('logout');
+  };
+}, []);
 
   // In your PromptLibrary component, add these new functions:
 
@@ -395,9 +412,9 @@ const checkIfAdmin = async (user) => {
           {savedComments.map((savedComment) => (
             <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
           ))}
-        </div>
+        </div>             
+         
 
-       
         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
@@ -436,6 +453,9 @@ const checkIfAdmin = async (user) => {
             </div>
           </div>
         )}
+
+
+        
       </div>
 
 
