@@ -186,22 +186,22 @@ useEffect(() => {
     }
   };
 
-  netlifyIdentity.on('init', handleUser);
-  netlifyIdentity.on('login', handleUser);
-  netlifyIdentity.on('logout', () => {
-    console.log('User logged out');
-    setUser(null);
-    setIsLoading(false);
-    setIsAdmin(false);
-  });
-  netlifyIdentity.init();
+//   netlifyIdentity.on('init', handleUser);
+//   netlifyIdentity.on('login', handleUser);
+//   netlifyIdentity.on('logout', () => {
+//     console.log('User logged out');
+//     setUser(null);
+//     setIsLoading(false);
+//     setIsAdmin(false);
+//   });
+//   netlifyIdentity.init();
 
-  return () => {
-    netlifyIdentity.off('init');
-    netlifyIdentity.off('login');
-    netlifyIdentity.off('logout');
-  };
-}, [];
+//   return () => {
+//     netlifyIdentity.off('init');
+//     netlifyIdentity.off('login');
+//     netlifyIdentity.off('logout');
+//   };
+// }, [];
 
 // Add this separate useEffect to log category changes
 useEffect(() => {
