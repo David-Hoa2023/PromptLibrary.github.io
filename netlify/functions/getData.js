@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
 
     // Fetch user data
     const userData = await collection.findOne({ userId });
-    console.log('User data:', userData);
+    console.log('Raw user data from MongoDB:', userData);
 
     // Validate user data
     if (!userData || typeof userData !== 'object') {
@@ -48,6 +48,10 @@ exports.handler = async (event, context) => {
 
     // Define default categories
     const defaultCategories = ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'];
+    console.log('Default categories:', defaultCategories);
+
+    // Log user-specific categories
+    console.log('User-specific categories:', userData.categories || []);
 
     // Prepare result with default categories and user data
     const result = {
@@ -57,7 +61,8 @@ exports.handler = async (event, context) => {
       comments: userData.comments || []
     };
 
-    console.log('Returning data:', result);
+    console.log('Final categories array:', result.categories);
+    console.log('Full result object:', JSON.stringify(result, null, 2));
 
     return {
       statusCode: 200,
