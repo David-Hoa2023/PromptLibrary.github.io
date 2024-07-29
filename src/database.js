@@ -40,6 +40,28 @@ export const getData = async () => {
   }
 };
 
+// Add these new functions to your existing database.js file
+
+export const editCategory = async (oldName, newName) => {
+  return saveData('editCategory', { oldName, newName });
+};
+
+export const deleteCategory = async (category) => {
+  return saveData('deleteCategory', category);
+};
+
+export const deletePrompt = async (promptId) => {
+  return saveData('deletePrompt', promptId);
+};
+
+export const editTag = async (oldTag, newTag) => {
+  return saveData('editTag', { oldTag, newTag });
+};
+
+export const deleteTag = async (tag) => {
+  return saveData('deleteTag', tag);
+};
+
 export const saveData = async (key, value) => {
   const user = netlifyIdentity.currentUser();
   if (!user) {
