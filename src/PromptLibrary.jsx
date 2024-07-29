@@ -201,7 +201,7 @@ useEffect(() => {
     netlifyIdentity.off('login');
     netlifyIdentity.off('logout');
   };
-}, [];
+}, []);
 
 // Add this separate useEffect to log category changes
 useEffect(() => {
