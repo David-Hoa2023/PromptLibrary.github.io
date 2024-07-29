@@ -488,6 +488,7 @@ const checkIfAdmin = async (user) => {
             </div>
           </div>
         )}
+      </div>
 
 
       {/* Right section */}
