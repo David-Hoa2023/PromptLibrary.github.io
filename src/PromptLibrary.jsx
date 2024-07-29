@@ -250,6 +250,9 @@ const checkIfAdmin = async (user) => {
     <div className="flex h-screen bg-gray-100">    
       {/* Left section */}
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
+        
+
+        
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
         <ul className="mb-4">
           {categories.map(category => (
