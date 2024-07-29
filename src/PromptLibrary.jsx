@@ -21,7 +21,41 @@ const PromptLibrary = () => {
   const [savedComments, setSavedComments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false); // You'll need to set this based on user role
 
-  useEffect(() => {
+//   useEffect(() => {
+//   const netlifyIdentity = window.netlifyIdentity;
+  
+//   const handleUser = async (user) => {
+//     console.log('Netlify Identity initialized/User logged in:', user);
+//     setUser(user);
+//     if (user) {
+//       // Check if the user is an admin
+//       const adminStatus = await checkIfAdmin(user);
+//       setIsAdmin(adminStatus);
+//       loadData();
+//     } else {
+//       setIsLoading(false);
+//       setIsAdmin(false);
+//     }
+//   };
+
+//   netlifyIdentity.on('init', handleUser);
+//   netlifyIdentity.on('login', handleUser);
+//   netlifyIdentity.on('logout', () => {
+//     console.log('User logged out');
+//     setUser(null);
+//     setIsLoading(false);
+//     setIsAdmin(false);
+//   });
+//   netlifyIdentity.init();
+
+//   return () => {
+//     netlifyIdentity.off('init');
+//     netlifyIdentity.off('login');
+//     netlifyIdentity.off('logout');
+//   };
+// }, []);
+
+useEffect(() => {
   const netlifyIdentity = window.netlifyIdentity;
   
   const handleUser = async (user) => {
@@ -31,10 +65,36 @@ const PromptLibrary = () => {
       // Check if the user is an admin
       const adminStatus = await checkIfAdmin(user);
       setIsAdmin(adminStatus);
-      loadData();
+      await loadData();
     } else {
       setIsLoading(false);
       setIsAdmin(false);
+    }
+  };
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log('Starting to load data');
+      const data = await getData();
+      console.log('Loaded data:', data);
+      if (data && typeof data === 'object') {
+        setCategories(data.categories || []);
+        console.log('Categories set:', data.categories || []);
+        setPrompts(data.prompts || []);
+        console.log('Prompts set:', data.prompts || []);
+        setTags(data.tags || []);
+        setComment(data.comment || '');
+        console.log('Data successfully set in state');
+      } else {
+        throw new Error('Received invalid data format');
+      }
+    } catch (err) {
+      console.error('Load data error:', err);
+      setError(`Failed to load data: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,6 +114,11 @@ const PromptLibrary = () => {
     netlifyIdentity.off('logout');
   };
 }, []);
+
+// Add this separate useEffect to log category changes
+useEffect(() => {
+  console.log('Categories state updated:', categories);
+}, [categories]);
 
 const checkIfAdmin = async (user) => {
   try {
