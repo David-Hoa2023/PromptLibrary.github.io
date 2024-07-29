@@ -160,31 +160,31 @@ useEffect(() => {
     }
   };
 
-  const loadData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log('Starting to load data');
-      const data = await getData();
-      console.log('Loaded data:', data);
-      if (data && typeof data === 'object') {
-        setCategories(data.categories || []);
-        console.log('Categories set:', data.categories || []);
-        setPrompts(data.prompts || []);
-        console.log('Prompts set:', data.prompts || []);
-        setTags(data.tags || []);
-        setComment(data.comment || '');
-        console.log('Data successfully set in state');
-      } else {
-        throw new Error('Received invalid data format');
-      }
-    } catch (err) {
-      console.error('Load data error:', err);
-      setError(`Failed to load data: ${err.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const loadData = async () => {
+  //   setIsLoading(true);
+  //   setError(null);
+  //   try {
+  //     console.log('Starting to load data');
+  //     const data = await getData();
+  //     console.log('Loaded data:', data);
+  //     if (data && typeof data === 'object') {
+  //       setCategories(data.categories || []);
+  //       console.log('Categories set:', data.categories || []);
+  //       setPrompts(data.prompts || []);
+  //       console.log('Prompts set:', data.prompts || []);
+  //       setTags(data.tags || []);
+  //       setComment(data.comment || '');
+  //       console.log('Data successfully set in state');
+  //     } else {
+  //       throw new Error('Received invalid data format');
+  //     }
+  //   } catch (err) {
+  //     console.error('Load data error:', err);
+  //     setError(`Failed to load data: ${err.message}`);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
 //   netlifyIdentity.on('init', handleUser);
 //   netlifyIdentity.on('login', handleUser);
