@@ -489,8 +489,8 @@ return (
               ))}
             </div>
           </div>
-        )}     
-      </div> */}
+        )}      */}
+      </div>
       {/* Temporarily remove isAdmin condition for debugging */}
       <div className="mt-8">
         <h3 className="font-bold mb-2">Admin Controls (Debug)</h3>
