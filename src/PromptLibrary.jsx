@@ -471,11 +471,7 @@ return (
               ))}
             </div>
           </div>
-        )}
-
-
-        
-{/*       </div> */}
+        )}     
       </div>
 
       {/* Right section */}              
@@ -518,6 +514,7 @@ return (
           })}
         </div>
       </div>
+    </div>
 
       {/* Edit Prompt Modal */}
       {editingPrompt && (
@@ -578,11 +575,6 @@ return (
       )}      
     </div>
   );
-}; 
-      
-      
-
-
-
+};    
 
 export default PromptLibrary;
