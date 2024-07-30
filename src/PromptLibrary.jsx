@@ -127,6 +127,12 @@ useEffect(() => {
 console.log('isAdmin state changed:', isAdmin);
 }, [isAdmin]);
 
+useEffect(() => {
+  console.log('Categories:', categories);
+  console.log('Prompts:', prompts);
+  console.log('Tags:', tags);
+}, [categories, prompts, tags]);
+
   // In your PromptLibrary component, add these new functions: 
 
   const handleLogin = () => {
@@ -356,6 +362,9 @@ return (
     <div className="flex flex-1 overflow-hidden">
       {/* Left section */}      
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
+        <div className="bg-yellow-100 p-2 mb-4 rounded">
+          Admin Status: {isAdmin ? 'Admin' : 'Not Admin'}
+        </div>
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
           {categories.length > 0 ? (
             <ul className="mb-4">
@@ -443,7 +452,7 @@ return (
 
         {/* Left section */}
 
-        {isAdmin && (
+{/*         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
             <div className="mb-4">
@@ -481,6 +490,22 @@ return (
             </div>
           </div>
         )}     
+      </div> */}
+      {/* Temporarily remove isAdmin condition for debugging */}
+      <div className="mt-8">
+        <h3 className="font-bold mb-2">Admin Controls (Debug)</h3>
+        <div className="mb-4">
+          <h4 className="font-semibold">Categories</h4>
+          {categories.filter(c => c !== 'All').map(category => (
+            <AdminCategoryControl 
+              key={category}
+              category={category}
+              onEdit={editCategory}
+              onDelete={deleteCategory}
+            />
+          ))}
+        </div>
+        {/* ... other admin controls ... */}
       </div>
 
       {/* Right section */}              
