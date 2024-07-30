@@ -52,6 +52,29 @@ const getLightPastelColor = () => {
   return `hsl(${hue}, 70%, 90%)`;
 };
 
+const checkIfAdmin = async (user) => {
+      try {
+        const token = await user.jwt();
+        const response = await fetch('/.netlify/functions/getUserRole', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        const { role } = await response.json();
+        return role === 'admin';
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        // Depending on your error handling strategy, you might want to throw the error here
+        // instead of returning false, so the calling code can handle it appropriately
+        return false;
+      }
+    };
+
 const PromptLibrary = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +122,10 @@ useEffect(() => {
     netlifyIdentity.off('logout');
   };
 }, []);
+// Add this useEffect for debugging
+useEffect(() => {
+console.log('isAdmin state changed:', isAdmin);
+}, [isAdmin]);
 
   // In your PromptLibrary component, add these new functions: 
 
@@ -197,25 +224,7 @@ useEffect(() => {
   console.log('Categories state updated:', categories);
 }, [categories]);
 
-const checkIfAdmin = async (user) => {
-  try {
-    const response = await fetch('/.netlify/functions/getUserRole', {
-      headers: {
-        'Authorization': `Bearer ${user.token.access_token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user role');
-    }
-
-    const { role } = await response.json();
-    return role === 'admin';
-  } catch (error) {
-    console.error('Error checking admin status:', error);
-    return false;
-  }
-};
+    
   
   const saveComment = async () => {
     try {
