@@ -506,7 +506,7 @@ return (
 
 
       {/* Right section */}
-      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+{/*       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
           <button 
@@ -520,7 +520,7 @@ return (
             })}
           >
             Prompt mới
-          </button>
+          </button> */}
         </div>
         <div className="grid grid-cols-3 gap-4">
           {filteredPrompts.map(prompt => {
