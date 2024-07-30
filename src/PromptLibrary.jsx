@@ -345,34 +345,7 @@ return (
 
     {/* Main content area */}
     <div className="flex flex-1 overflow-hidden">
-      {/* Left section */}
-      <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
-        {/* ... existing left section content ... */}
-      </div>
-
-      {/* Right section */}
-      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Prompt</h2>
-          <button 
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => setEditingPrompt({
-              id: null,
-              name: '',
-              category: categories.length > 1 ? categories[1] : '',
-              content: '',
-              tags: []
-            })}
-          >
-            Prompt mới
-          </button>
-        </div>
-        {/* ... rest of the right section content ... */}
-      </div>
-    </div>
-
-      
-      {/* Left section */}
+      {/* Left section */}      
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
           {categories.length > 0 ? (
@@ -502,10 +475,10 @@ return (
 
 
         
+{/*       </div> */}
       </div>
 
-
-{/*       Right section */}
+      {/* Right section */}              
       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
@@ -605,6 +578,11 @@ return (
       )}      
     </div>
   );
-};
+}; 
+      
+      
+
+
+
 
 export default PromptLibrary;
