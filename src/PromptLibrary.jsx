@@ -420,7 +420,7 @@ return (
           Gửi
         </button>
 
-        {/* Extended Admin Controls */}
+{/*         {/* Extended Admin Controls */}
         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
@@ -478,7 +478,7 @@ return (
             </div>
           </div>
         )}
-      </div>
+      </div> */}
           
     
                       
