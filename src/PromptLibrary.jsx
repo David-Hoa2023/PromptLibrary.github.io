@@ -53,27 +53,32 @@ const getLightPastelColor = () => {
 };
 
 const checkIfAdmin = async (user) => {
-      try {
-        const token = await user.jwt();
-        const response = await fetch('/.netlify/functions/getUserRole', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+  try {
+    console.log('Checking if user is admin:', user.email);
+    const token = await user.jwt();
+    console.log('JWT token obtained');
     
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    
-        const { role } = await response.json();
-        return role === 'admin';
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        // Depending on your error handling strategy, you might want to throw the error here
-        // instead of returning false, so the calling code can handle it appropriately
-        return false;
-      }
-    };
+    const response = await fetch('/.netlify/functions/getUserRole', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    console.log('getUserRole response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('getUserRole response data:', data);
+
+    return data.role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+};
 
 const PromptLibrary = () => {
   const [user, setUser] = useState(null);
@@ -89,49 +94,55 @@ const PromptLibrary = () => {
   const [savedComments, setSavedComments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false); // You'll need to set this based on user role
 
-useEffect(() => {
-  const netlifyIdentity = window.netlifyIdentity;
+  useEffect(() => {
+      const netlifyIdentity = window.netlifyIdentity;
+      
+      const handleUser = async (user) => {
+        console.log('Netlify Identity user:', user);
+        if (user) {
+          // Check if the user is an admin
+          const adminStatus = await checkIfAdmin(user);
+          console.log('Admin status from checkIfAdmin:', adminStatus);
+          setIsAdmin(adminStatus);
+          console.log('isAdmin state set to:', adminStatus);
+        } else {
+          setIsAdmin(false);
+          console.log('User logged out, isAdmin set to false');
+        }
+      };
   
-  const handleUser = async (user) => {
-    console.log('Netlify Identity initialized/User logged in:', user);
-    setUser(user);
-    if (user) {
-      // Check if the user is an admin
-      const adminStatus = await checkIfAdmin(user);
-      setIsAdmin(adminStatus);   
-      loadData();
-    } else {
-      setIsLoading(false);
-      setIsAdmin(false);
-    }
-  };
+      netlifyIdentity.on('init', user => {
+        console.log('Netlify Identity initialized');
+        handleUser(user);
+      });
+      netlifyIdentity.on('login', user => {
+        console.log('User logged in');
+        handleUser(user);
+      });
+      netlifyIdentity.on('logout', () => {
+        console.log('User logged out');
+        setIsAdmin(false);
+      });
   
-  netlifyIdentity.on('init', handleUser);
-  netlifyIdentity.on('login', handleUser);
-  netlifyIdentity.on('logout', () => {
-    console.log('User logged out');
-    setUser(null);
-    setIsLoading(false);
-    setIsAdmin(false);
-  });
-  netlifyIdentity.init();
+      netlifyIdentity.init();
   
-  return () => {
-    netlifyIdentity.off('init');
-    netlifyIdentity.off('login');
-    netlifyIdentity.off('logout');
-  };
-}, []);
-// Add this useEffect for debugging
-useEffect(() => {
-console.log('isAdmin state changed:', isAdmin);
-}, [isAdmin]);
-
-useEffect(() => {
-  console.log('Categories:', categories);
-  console.log('Prompts:', prompts);
-  console.log('Tags:', tags);
-}, [categories, prompts, tags]);
+      return () => {
+        netlifyIdentity.off('init');
+        netlifyIdentity.off('login');
+        netlifyIdentity.off('logout');
+      };
+    }, []);
+  
+    // Add this useEffect to log isAdmin changes
+    useEffect(() => {
+      console.log('isAdmin changed:', isAdmin);
+    }, [isAdmin]);
+  
+  useEffect(() => {
+    console.log('Categories:', categories);
+    console.log('Prompts:', prompts);
+    console.log('Tags:', tags);
+  }, [categories, prompts, tags]);
 
   // In your PromptLibrary component, add these new functions: 
 
