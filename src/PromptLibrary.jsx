@@ -114,7 +114,7 @@ useEffect(() => {
     console.log('User logged out');
     setUser(null);
     setIsLoading(false);
-    setIsAdmin(true);
+    setIsAdmin(false);
   });
   netlifyIdentity.init();
   
