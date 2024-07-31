@@ -133,6 +133,12 @@ useEffect(() => {
   console.log('Tags:', tags);
 }, [categories, prompts, tags]);
 
+// Add this separate useEffect to log category changes
+useEffect(() => {
+  console.log('Categories state updated:', categories);
+}, [categories]);
+
+
   // In your PromptLibrary component, add these new functions: 
 
   const handleLogin = () => {
@@ -222,15 +228,7 @@ useEffect(() => {
         setError('Failed to delete tag. Please try again.');
       }
     }
-  };
-
-
-// Add this separate useEffect to log category changes
-useEffect(() => {
-  console.log('Categories state updated:', categories);
-}, [categories]);
-
-    
+  };    
   
   const saveComment = async () => {
     try {
