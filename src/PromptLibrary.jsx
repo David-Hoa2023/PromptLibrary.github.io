@@ -523,7 +523,7 @@ return (
             </div>
           </div>
         )}      */}
-      </div>
+{/*       </div> */}
       {/* Temporarily remove isAdmin condition for debugging */}
       
 
