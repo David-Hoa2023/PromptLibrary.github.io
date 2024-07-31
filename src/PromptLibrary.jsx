@@ -491,9 +491,11 @@ return (
           </div>
         )}      */}
       </div>
-      {/* Temporarily remove isAdmin condition for debugging */}
+      {/* Admin Controls Section */}
       <div className="mt-8">
         <h3 className="font-bold mb-2">Admin Controls (Debug)</h3>
+        
+        {/* Categories */}
         <div className="mb-4">
           <h4 className="font-semibold">Categories</h4>
           {categories.filter(c => c !== 'All').map(category => (
@@ -505,7 +507,45 @@ return (
             />
           ))}
         </div>
-        {/* ... other admin controls ... */}
+      
+        {/* Prompts */}
+        <div className="mb-4">
+          <h4 className="font-semibold">Prompts</h4>
+          {prompts.map(prompt => (
+            <AdminPromptControl 
+              key={prompt.id}
+              prompt={prompt}
+              onEdit={editPrompt}
+              onDelete={deletePrompt}
+            />
+          ))}
+        </div>
+      
+        {/* Hashtags (Tags) */}
+        <div className="mb-4">
+          <h4 className="font-semibold">Hashtags</h4>
+          {tags.map(tag => (
+            <AdminTagControl 
+              key={tag}
+              tag={tag}
+              onEdit={editTag}
+              onDelete={deleteTag}
+            />
+          ))}
+        </div>
+      
+        {/* Comments */}
+        <div className="mb-4">
+          <h4 className="font-semibold">Comments</h4>
+          {comments.map(comment => (
+            <AdminCommentControl 
+              key={comment.id}
+              comment={comment}
+              onEdit={editComment}
+              onDelete={deleteComment}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Right section */}              
