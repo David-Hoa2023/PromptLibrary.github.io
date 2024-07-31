@@ -1,31 +1,26 @@
-const { MongoClient } = require('mongodb');
-
-exports.handler = async (event, context) => {
-  const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
+const checkIfAdmin = async (user) => {
   try {
-    if (!context.clientContext.user) {
-      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+    const token = await user.jwt();
+    const response = await fetch('/.netlify/functions/getUserRole', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const userId = context.clientContext.user.sub;
+    const data = await response.json();
+    console.log('getUserRole response:', data);
 
-    await client.connect();
-    const database = client.db('promptLibrary');
-    const collection = database.collection('users');
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
-    const user = await collection.findOne({ userId });
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ role: user ? user.role : 'user' }),
-    };
+    return data.role === 'admin';
   } catch (error) {
-    return { 
-      statusCode: 500, 
-      body: JSON.stringify({ error: 'Failed to fetch user role', details: error.message }) 
-    };
-  } finally {
-    await client.close();
+    console.error('Error checking admin status:', error);
+    return false;
   }
 };
