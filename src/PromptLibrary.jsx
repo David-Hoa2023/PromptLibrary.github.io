@@ -98,7 +98,7 @@ useEffect(() => {
     if (user) {
       // Check if the user is an admin
       // const adminStatus = await checkIfAdmin(user);
-      // setIsAdmin(adminStatus);
+      setIsAdmin(adminStatus);
       // Temporarily force admin status for testing
       setIsAdmin(true);
       loadData();
