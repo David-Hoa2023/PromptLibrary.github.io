@@ -135,94 +135,94 @@ useEffect(() => {
 
   // In your PromptLibrary component, add these new functions: 
 
-  const handleLogin = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.open();
-    netlifyIdentity.on('login', (user) => {
-      netlifyIdentity.close();
-      setUser(user);
-      checkIfAdmin(user).then(setIsAdmin);
-    });
-  };
+const handleLogin = () => {
+  const netlifyIdentity = window.netlifyIdentity;
+  netlifyIdentity.open();
+  netlifyIdentity.on('login', (user) => {
+    netlifyIdentity.close();
+    setUser(user);
+    checkIfAdmin(user).then(setIsAdmin);
+  });
+};
 
-  const handleLogout = () => {
-    const netlifyIdentity = window.netlifyIdentity;
-    netlifyIdentity.logout();
-    netlifyIdentity.on('logout', () => {
-      netlifyIdentity.close();
-      setUser(null);
-      setIsAdmin(false);
-    });
-  };
+const handleLogout = () => {
+  const netlifyIdentity = window.netlifyIdentity;
+  netlifyIdentity.logout();
+  netlifyIdentity.on('logout', () => {
+    netlifyIdentity.close();
+    setUser(null);
+    setIsAdmin(false);
+  });
+};
 
-  const editCategory = async (category) => {
-    const newName = prompt(`Enter new name for category "${category}":`, category);
-    if (newName && newName !== category) {
-      try {
-        await saveData('editCategory', { oldName: category, newName });
-        setCategories(categories.map(c => c === category ? newName : c));
-      } catch (error) {
-        setError('Failed to edit category. Please try again.');
-      }
+const editCategory = async (category) => {
+  const newName = prompt(`Enter new name for category "${category}":`, category);
+  if (newName && newName !== category) {
+    try {
+      await saveData('editCategory', { oldName: category, newName });
+      setCategories(categories.map(c => c === category ? newName : c));
+    } catch (error) {
+      setError('Failed to edit category. Please try again.');
     }
-  };
+  }
+};
   
-  const deleteCategory = async (category) => {
-    if (window.confirm(`Are you sure you want to delete the category "${category}"?`)) {
-      try {
-        await saveData('deleteCategory', category);
-        setCategories(categories.filter(c => c !== category));
-      } catch (error) {
-        setError('Failed to delete category. Please try again.');
-      }
+const deleteCategory = async (category) => {
+  if (window.confirm(`Are you sure you want to delete the category "${category}"?`)) {
+    try {
+      await saveData('deleteCategory', category);
+      setCategories(categories.filter(c => c !== category));
+    } catch (error) {
+      setError('Failed to delete category. Please try again.');
     }
-  };
+  }
+};
   
-  const editPrompt = (prompt) => {
-    setEditingPrompt(prompt);
-  };
-  
-  const deletePrompt = async (prompt) => {
-    if (window.confirm(`Are you sure you want to delete the prompt "${prompt.name}"?`)) {
-      try {
-        await saveData('deletePrompt', prompt.id);
-        setPrompts(prompts.filter(p => p.id !== prompt.id));
-      } catch (error) {
-        setError('Failed to delete prompt. Please try again.');
-      }
+const editPrompt = (prompt) => {
+  setEditingPrompt(prompt);
+};
+
+const deletePrompt = async (prompt) => {
+  if (window.confirm(`Are you sure you want to delete the prompt "${prompt.name}"?`)) {
+    try {
+      await saveData('deletePrompt', prompt.id);
+      setPrompts(prompts.filter(p => p.id !== prompt.id));
+    } catch (error) {
+      setError('Failed to delete prompt. Please try again.');
     }
-  };
+  }
+};
   
-  const editTag = async (tag) => {
-    const newTag = prompt(`Enter new name for tag "${tag}":`, tag);
-    if (newTag && newTag !== tag) {
-      try {
-        await saveData('editTag', { oldTag: tag, newTag });
-        setTags(tags.map(t => t === tag ? newTag : t));
-        setPrompts(prompts.map(p => ({
-          ...p,
-          tags: p.tags.map(t => t === tag ? newTag : t)
-        })));
-      } catch (error) {
-        setError('Failed to edit tag. Please try again.');
-      }
+const editTag = async (tag) => {
+  const newTag = prompt(`Enter new name for tag "${tag}":`, tag);
+  if (newTag && newTag !== tag) {
+    try {
+      await saveData('editTag', { oldTag: tag, newTag });
+      setTags(tags.map(t => t === tag ? newTag : t));
+      setPrompts(prompts.map(p => ({
+        ...p,
+        tags: p.tags.map(t => t === tag ? newTag : t)
+      })));
+    } catch (error) {
+      setError('Failed to edit tag. Please try again.');
     }
-  };
+  }
+};
   
-  const deleteTag = async (tag) => {
-    if (window.confirm(`Are you sure you want to delete the tag "${tag}"?`)) {
-      try {
-        await saveData('deleteTag', tag);
-        setTags(tags.filter(t => t !== tag));
-        setPrompts(prompts.map(p => ({
-          ...p,
-          tags: p.tags.filter(t => t !== tag)
-        })));
-      } catch (error) {
-        setError('Failed to delete tag. Please try again.');
-      }
+const deleteTag = async (tag) => {
+  if (window.confirm(`Are you sure you want to delete the tag "${tag}"?`)) {
+    try {
+      await saveData('deleteTag', tag);
+      setTags(tags.filter(t => t !== tag));
+      setPrompts(prompts.map(p => ({
+        ...p,
+        tags: p.tags.filter(t => t !== tag)
+      })));
+    } catch (error) {
+      setError('Failed to delete tag. Please try again.');
     }
-  };
+  }
+};
 
 
 // Add this separate useEffect to log category changes
@@ -232,102 +232,102 @@ useEffect(() => {
 
     
   
-  const saveComment = async () => {
-    try {
-      const newComment = { id: Date.now(), text: comment };
-      const updatedComments = [...savedComments, newComment];
-      await saveData('comments', updatedComments);
-      setSavedComments(updatedComments);
-      setComment('');
-      console.log('Comment saved successfully');
-    } catch (err) {
-      console.error('Save comment error:', err);
-      setError('Failed to save comment. Please try again.');
-    }
-  };
+const saveComment = async () => {
+  try {
+    const newComment = { id: Date.now(), text: comment };
+    const updatedComments = [...savedComments, newComment];
+    await saveData('comments', updatedComments);
+    setSavedComments(updatedComments);
+    setComment('');
+    console.log('Comment saved successfully');
+  } catch (err) {
+    console.error('Save comment error:', err);
+    setError('Failed to save comment. Please try again.');
+  }
+};
 
   
-   // Extract unique hashtags from all prompts
-  const allHashtags = [...new Set(prompts.flatMap(prompt => prompt.tags))];
+ // Extract unique hashtags from all prompts
+const allHashtags = [...new Set(prompts.flatMap(prompt => prompt.tags))];
 
-  const loadData = async () => {
-    setIsLoading(true);
-    setError(null);
+const loadData = async () => {
+  setIsLoading(true);
+  setError(null);
+  try {
+    console.log('Starting to load data');
+    const data = await getData();
+    console.log('Loaded data:', data);
+    if (data && typeof data === 'object') {
+      const defaultCategories = ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'];
+      const dbCategories = data.categories || [];
+      const newCategories = [...new Set([...defaultCategories, ...dbCategories])];
+      setCategories(newCategories);
+      console.log('Categories set:', newCategories);
+      setPrompts(data.prompts || []);
+      console.log('Prompts set:', data.prompts || []);
+      setTags(data.tags || []);
+      setComment(data.comment || '');
+      console.log('Data successfully set in state');
+    } else {
+      throw new Error('Received invalid data format');
+    }
+  } catch (err) {
+    console.error('Load data error:', err);
+    setError(`Failed to load data: ${err.message}`);
+  } finally {
+    setIsLoading(false);
+  }
+}; 
+
+const addCategory = async () => {
+  const newCategory = prompt('Enter new category name:');
+  if (newCategory && !categories.includes(newCategory)) {
+    const newCategories = [...categories.filter(cat => cat !== 'All'), newCategory];
     try {
-      console.log('Starting to load data');
-      const data = await getData();
-      console.log('Loaded data:', data);
-      if (data && typeof data === 'object') {
-        const defaultCategories = ['All', 'Văn bản', 'Hình ảnh', 'Đa phương thức', 'Suy luận'];
-        const dbCategories = data.categories || [];
-        const newCategories = [...new Set([...defaultCategories, ...dbCategories])];
-        setCategories(newCategories);
-        console.log('Categories set:', newCategories);
-        setPrompts(data.prompts || []);
-        console.log('Prompts set:', data.prompts || []);
-        setTags(data.tags || []);
-        setComment(data.comment || '');
-        console.log('Data successfully set in state');
-      } else {
-        throw new Error('Received invalid data format');
-      }
+      console.log('Saving categories:', newCategories);
+      await saveData('categories', newCategories);
+      setCategories(['All', ...newCategories]);
+      console.log('Category added successfully:', newCategory);
     } catch (err) {
-      console.error('Load data error:', err);
-      setError(`Failed to load data: ${err.message}`);
-    } finally {
-      setIsLoading(false);
+      console.error('Save category error:', err);
+      setError('Failed to save category. Please try again.');
     }
-  }; 
-
-  const addCategory = async () => {
-    const newCategory = prompt('Enter new category name:');
-    if (newCategory && !categories.includes(newCategory)) {
-      const newCategories = [...categories.filter(cat => cat !== 'All'), newCategory];
-      try {
-        console.log('Saving categories:', newCategories);
-        await saveData('categories', newCategories);
-        setCategories(['All', ...newCategories]);
-        console.log('Category added successfully:', newCategory);
-      } catch (err) {
-        console.error('Save category error:', err);
-        setError('Failed to save category. Please try again.');
-      }
-    } else if (categories.includes(newCategory)) {
-      setError('This category already exists.');
-    }
-  };
-
-  const savePrompt = async (promptToSave) => {
-    try {
-      let updatedPrompts;
-      if (promptToSave.id) {
-        updatedPrompts = prompts.map(p => p.id === promptToSave.id ? promptToSave : p);
-      } else {
-        updatedPrompts = [...prompts, { ...promptToSave, id: Date.now() }];
-      }
-      console.log('Saving prompts:', updatedPrompts);
-      await saveData('prompts', updatedPrompts);
-      setPrompts(updatedPrompts);
-      setEditingPrompt(null);
-      console.log('Prompt saved successfully');
-    } catch (error) {
-      console.error('Error saving prompt:', error);
-      setError('Failed to save prompt. Please try again.');
-    }
-  };
-
-  const filteredPrompts = prompts.filter(prompt => 
-    (selectedCategories.includes('All') || selectedCategories.includes(prompt.category)) &&
-    (selectedTags.length === 0 || selectedTags.some(tag => prompt.tags.includes(tag)))
-  );
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  } else if (categories.includes(newCategory)) {
+    setError('This category already exists.');
   }
+};
 
-  if (error) {
-    return <div>Error: {error}</div>;
+const savePrompt = async (promptToSave) => {
+  try {
+    let updatedPrompts;
+    if (promptToSave.id) {
+      updatedPrompts = prompts.map(p => p.id === promptToSave.id ? promptToSave : p);
+    } else {
+      updatedPrompts = [...prompts, { ...promptToSave, id: Date.now() }];
+    }
+    console.log('Saving prompts:', updatedPrompts);
+    await saveData('prompts', updatedPrompts);
+    setPrompts(updatedPrompts);
+    setEditingPrompt(null);
+    console.log('Prompt saved successfully');
+  } catch (error) {
+    console.error('Error saving prompt:', error);
+    setError('Failed to save prompt. Please try again.');
   }
+};
+
+const filteredPrompts = prompts.filter(prompt => 
+  (selectedCategories.includes('All') || selectedCategories.includes(prompt.category)) &&
+  (selectedTags.length === 0 || selectedTags.some(tag => prompt.tags.includes(tag)))
+);
+
+if (isLoading) {
+  return <div>Loading...</div>;
+}
+
+if (error) {
+  return <div>Error: {error}</div>;
+}
   
 return (
   <div className="flex flex-col h-screen bg-gray-100">
