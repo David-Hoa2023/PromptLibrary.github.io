@@ -366,29 +366,20 @@ return (
           Admin Status: {isAdmin ? 'Admin' : 'Not Admin'}
         </div>
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
-          {categories.length > 0 ? (
-            <ul className="mb-4">
-              {categories.map(category => (
-                <li 
-                  key={category} 
-                  className="flex items-center cursor-pointer p-2"
-                  onClick={() => setSelectedCategories(category === 'All' ? ['All'] : [category])}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={selectedCategories.includes(category)}
-                    readOnly
-                    className="mr-2"
-                  />
-                  {category}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No categories available</p>
-          )}
-
-
+        {/* Categories */}
+        <ul className="mb-4">
+          {categories.map(category => (
+            <li key={category} className="flex items-center cursor-pointer p-2">
+              <input 
+                type="checkbox" 
+                checked={selectedCategories.includes(category)}
+                onChange={() => handleCategoryChange(category)}
+                className="mr-2"
+              />
+              {category}
+            </li>
+          ))}
+        </ul>
         <button 
           className="w-full mb-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 flex items-center justify-center"
           onClick={addCategory}
@@ -397,6 +388,7 @@ return (
           Thêm Loại Prompt
         </button>
         
+        {/* Tags */}
         <h3 className="font-bold mb-2">Tags</h3>
         <div className="flex flex-wrap gap-2 mb-4">
           {tags.map(tag => (
@@ -405,29 +397,13 @@ return (
               className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
                 selectedTags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
               }`}
-              onClick={() => setSelectedTags(
-                selectedTags.includes(tag)
-                  ? selectedTags.filter(t => t !== tag)
-                  : [...selectedTags, tag]
-              )}
+              onClick={() => handleTagClick(tag)}
             >
               {tag}
             </span>
           ))}
         </div>
-      
-{/*         <h3 className="font-bold mb-2">Hashtags from Prompts</h3> */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {allHashtags.map(hashtag => (
-            <span 
-              key={hashtag}
-              className="px-2 py-1 rounded-full text-sm bg-gray-200"
-            >
-              {hashtag}
-            </span>
-          ))}
-        </div>
-      
+
         {/* Comment Section */}
         <h3 className="font-bold mb-2">Your Comment</h3>
         <textarea
@@ -443,12 +419,69 @@ return (
         >
           Gửi
         </button>
-        <div className="mt-4">
-          <h4 className="font-bold mb-2">Saved Comments:</h4>
-          {savedComments.map((savedComment) => (
-            <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
-          ))}
-        </div>             
+
+        {/* Extended Admin Controls */}
+        {isAdmin && (
+          <div className="mt-8">
+            <h3 className="font-bold mb-2">Admin Controls</h3>
+            
+            {/* Categories */}
+            <div className="mb-4">
+              <h4 className="font-semibold">Categories</h4>
+              {categories.filter(c => c !== 'All').map(category => (
+                <AdminCategoryControl 
+                  key={category}
+                  category={category}
+                  onEdit={editCategory}
+                  onDelete={deleteCategory}
+                />
+              ))}
+            </div>
+
+            {/* Prompts */}
+            <div className="mb-4">
+              <h4 className="font-semibold">Prompts</h4>
+              {prompts.map(prompt => (
+                <AdminPromptControl 
+                  key={prompt.id}
+                  prompt={prompt}
+                  onEdit={editPrompt}
+                  onDelete={deletePrompt}
+                />
+              ))}
+            </div>
+
+            {/* Tags */}
+            <div className="mb-4">
+              <h4 className="font-semibold">Tags</h4>
+              {tags.map(tag => (
+                <AdminTagControl 
+                  key={tag}
+                  tag={tag}
+                  onEdit={editTag}
+                  onDelete={deleteTag}
+                />
+              ))}
+            </div>
+
+            {/* Comments */}
+            <div className="mb-4">
+              <h4 className="font-semibold">Comments</h4>
+              {comments.map(comment => (
+                <AdminCommentControl 
+                  key={comment.id}
+                  comment={comment}
+                  onEdit={editComment}
+                  onDelete={deleteComment}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+          
+    
+                      
 
         {/* Left section */}
 
@@ -491,62 +524,8 @@ return (
           </div>
         )}      */}
       </div>
-      {/* Admin Controls Section */}
-      <div className="mt-8">
-        <h3 className="font-bold mb-2">Admin Controls (Debug)</h3>
-        
-        {/* Categories */}
-        <div className="mb-4">
-          <h4 className="font-semibold">Categories</h4>
-          {categories.filter(c => c !== 'All').map(category => (
-            <AdminCategoryControl 
-              key={category}
-              category={category}
-              onEdit={editCategory}
-              onDelete={deleteCategory}
-            />
-          ))}
-        </div>
+      {/* Temporarily remove isAdmin condition for debugging */}
       
-        {/* Prompts */}
-        <div className="mb-4">
-          <h4 className="font-semibold">Prompts</h4>
-          {prompts.map(prompt => (
-            <AdminPromptControl 
-              key={prompt.id}
-              prompt={prompt}
-              onEdit={editPrompt}
-              onDelete={deletePrompt}
-            />
-          ))}
-        </div>
-      
-        {/* Hashtags (Tags) */}
-        <div className="mb-4">
-          <h4 className="font-semibold">Hashtags</h4>
-          {tags.map(tag => (
-            <AdminTagControl 
-              key={tag}
-              tag={tag}
-              onEdit={editTag}
-              onDelete={deleteTag}
-            />
-          ))}
-        </div>
-      
-        {/* Comments */}
-        <div className="mb-4">
-          <h4 className="font-semibold">Comments</h4>
-          {comments.map(comment => (
-            <AdminCommentControl 
-              key={comment.id}
-              comment={comment}
-              onEdit={editComment}
-              onDelete={deleteComment}
-            />
-          ))}
-        </div>
-      </div>
 
       {/* Right section */}              
       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
