@@ -37,6 +37,16 @@ const AdminTagControl = ({ tag, onEdit, onDelete }) => (
   </div>
 );
 
+const AdminCommentControl = ({ comment, onEdit, onDelete }) => (
+  <div className="flex items-center justify-between p-2 border-b">
+    <span>{comment.text.substring(0, 50)}...</span>
+    <div>
+      <button onClick={() => onEdit(comment)} className="mr-2 text-blue-500"><Edit size={16} /></button>
+      <button onClick={() => onDelete(comment)} className="text-red-500"><Trash2 size={16} /></button>
+    </div>
+  </div>
+);
+
 const getLightPastelColor = () => {
   const hue = Math.floor(Math.random() * 360);
   return `hsl(${hue}, 70%, 90%)`;
@@ -90,16 +100,26 @@ useEffect(() => {
   };
 }, []);
 
-  // In your PromptLibrary component, add these new functions:
+  // In your PromptLibrary component, add these new functions: 
 
   const handleLogin = () => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.open();
+    netlifyIdentity.on('login', (user) => {
+      netlifyIdentity.close();
+      setUser(user);
+      checkIfAdmin(user).then(setIsAdmin);
+    });
   };
 
   const handleLogout = () => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.logout();
+    netlifyIdentity.on('logout', () => {
+      netlifyIdentity.close();
+      setUser(null);
+      setIsAdmin(false);
+    });
   };
 
   const editCategory = async (category) => {
@@ -294,11 +314,12 @@ const checkIfAdmin = async (user) => {
     return <div>Error: {error}</div>;
   }
   
-  return (
-    <div className="flex h-screen bg-gray-100"> 
-
-      {/* Top bar for login/logout */}
-      <div className="absolute top-0 right-0 m-4">
+return (
+  <div className="flex flex-col h-screen bg-gray-100">
+    {/* Top bar for login/logout */}
+    <div className="bg-white p-4 shadow-md">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Prompt Library</h1>
         {user ? (
           <div className="flex items-center">
             <span className="mr-2">{user.email}</span>
@@ -320,6 +341,35 @@ const checkIfAdmin = async (user) => {
           </button>
         )}
       </div>
+    </div>
+
+    {/* Main content area */}
+    <div className="flex flex-1 overflow-hidden">
+      {/* Left section */}
+      <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
+        {/* ... existing left section content ... */}
+      </div>
+
+      {/* Right section */}
+      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Prompt</h2>
+          <button 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => setEditingPrompt({
+              id: null,
+              name: '',
+              category: categories.length > 1 ? categories[1] : '',
+              content: '',
+              tags: []
+            })}
+          >
+            Prompt mới
+          </button>
+        </div>
+        {/* ... rest of the right section content ... */}
+      </div>
+    </div>
 
       
       {/* Left section */}
