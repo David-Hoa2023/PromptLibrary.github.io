@@ -37,43 +37,10 @@ const AdminTagControl = ({ tag, onEdit, onDelete }) => (
   </div>
 );
 
-const AdminCommentControl = ({ comment, onEdit, onDelete }) => (
-  <div className="flex items-center justify-between p-2 border-b">
-    <span>{comment.text.substring(0, 50)}...</span>
-    <div>
-      <button onClick={() => onEdit(comment)} className="mr-2 text-blue-500"><Edit size={16} /></button>
-      <button onClick={() => onDelete(comment)} className="text-red-500"><Trash2 size={16} /></button>
-    </div>
-  </div>
-);
-
 const getLightPastelColor = () => {
   const hue = Math.floor(Math.random() * 360);
   return `hsl(${hue}, 70%, 90%)`;
 };
-
-const checkIfAdmin = async (user) => {
-      try {
-        const token = await user.jwt();
-        const response = await fetch('/.netlify/functions/getUserRole', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-    
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    
-        const { role } = await response.json();
-        return role === 'admin';
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        // Depending on your error handling strategy, you might want to throw the error here
-        // instead of returning false, so the calling code can handle it appropriately
-        return false;
-      }
-    };
 
 const PromptLibrary = () => {
   const [user, setUser] = useState(null);
@@ -122,37 +89,17 @@ useEffect(() => {
     netlifyIdentity.off('logout');
   };
 }, []);
-// Add this useEffect for debugging
-useEffect(() => {
-console.log('isAdmin state changed:', isAdmin);
-}, [isAdmin]);
 
-useEffect(() => {
-  console.log('Categories:', categories);
-  console.log('Prompts:', prompts);
-  console.log('Tags:', tags);
-}, [categories, prompts, tags]);
-
-  // In your PromptLibrary component, add these new functions: 
+  // In your PromptLibrary component, add these new functions:
 
   const handleLogin = () => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.open();
-    netlifyIdentity.on('login', (user) => {
-      netlifyIdentity.close();
-      setUser(user);
-      checkIfAdmin(user).then(setIsAdmin);
-    });
   };
 
   const handleLogout = () => {
     const netlifyIdentity = window.netlifyIdentity;
     netlifyIdentity.logout();
-    netlifyIdentity.on('logout', () => {
-      netlifyIdentity.close();
-      setUser(null);
-      setIsAdmin(false);
-    });
   };
 
   const editCategory = async (category) => {
@@ -230,7 +177,25 @@ useEffect(() => {
   console.log('Categories state updated:', categories);
 }, [categories]);
 
-    
+const checkIfAdmin = async (user) => {
+  try {
+    const response = await fetch('/.netlify/functions/getUserRole', {
+      headers: {
+        'Authorization': `Bearer ${user.token.access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user role');
+    }
+
+    const { role } = await response.json();
+    return role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+};
   
   const saveComment = async () => {
     try {
@@ -329,12 +294,11 @@ useEffect(() => {
     return <div>Error: {error}</div>;
   }
   
-return (
-  <div className="flex flex-col h-screen bg-gray-100">
-    {/* Top bar for login/logout */}
-    <div className="bg-white p-4 shadow-md">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Prompt Library</h1>
+  return (
+    <div className="flex h-screen bg-gray-100"> 
+
+      {/* Top bar for login/logout */}
+      <div className="absolute top-0 right-0 m-4">
         {user ? (
           <div className="flex items-center">
             <span className="mr-2">{user.email}</span>
@@ -356,30 +320,34 @@ return (
           </button>
         )}
       </div>
-    </div>
 
-    {/* Main content area */}
-    <div className="flex flex-1 overflow-hidden">
-      {/* Left section */}      
+      
+      {/* Left section */}
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
-        <div className="bg-yellow-100 p-2 mb-4 rounded">
-          Admin Status: {isAdmin ? 'Admin' : 'Not Admin'}
-        </div>
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
-        {/* Categories */}
-        <ul className="mb-4">
-          {categories.map(category => (
-            <li key={category} className="flex items-center cursor-pointer p-2">
-              <input 
-                type="checkbox" 
-                checked={selectedCategories.includes(category)}
-                onChange={() => handleCategoryChange(category)}
-                className="mr-2"
-              />
-              {category}
-            </li>
-          ))}
-        </ul>
+          {categories.length > 0 ? (
+            <ul className="mb-4">
+              {categories.map(category => (
+                <li 
+                  key={category} 
+                  className="flex items-center cursor-pointer p-2"
+                  onClick={() => setSelectedCategories(category === 'All' ? ['All'] : [category])}
+                >
+                  <input 
+                    type="checkbox" 
+                    checked={selectedCategories.includes(category)}
+                    readOnly
+                    className="mr-2"
+                  />
+                  {category}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No categories available</p>
+          )}
+
+
         <button 
           className="w-full mb-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 flex items-center justify-center"
           onClick={addCategory}
@@ -388,7 +356,6 @@ return (
           Thêm Loại Prompt
         </button>
         
-        {/* Tags */}
         <h3 className="font-bold mb-2">Tags</h3>
         <div className="flex flex-wrap gap-2 mb-4">
           {tags.map(tag => (
@@ -397,13 +364,29 @@ return (
               className={`px-2 py-1 rounded-full text-sm cursor-pointer ${
                 selectedTags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-gray-200'
               }`}
-              onClick={() => handleTagClick(tag)}
+              onClick={() => setSelectedTags(
+                selectedTags.includes(tag)
+                  ? selectedTags.filter(t => t !== tag)
+                  : [...selectedTags, tag]
+              )}
             >
               {tag}
             </span>
           ))}
         </div>
-
+      
+{/*         <h3 className="font-bold mb-2">Hashtags from Prompts</h3> */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {allHashtags.map(hashtag => (
+            <span 
+              key={hashtag}
+              className="px-2 py-1 rounded-full text-sm bg-gray-200"
+            >
+              {hashtag}
+            </span>
+          ))}
+        </div>
+      
         {/* Comment Section */}
         <h3 className="font-bold mb-2">Your Comment</h3>
         <textarea
@@ -419,13 +402,18 @@ return (
         >
           Gửi
         </button>
+        <div className="mt-4">
+          <h4 className="font-bold mb-2">Saved Comments:</h4>
+          {savedComments.map((savedComment) => (
+            <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
+          ))}
+        </div>             
 
-{/*         {/* Extended Admin Controls */}
+        {/* Left section */}
+
         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
-            
-            {/* Categories */}
             <div className="mb-4">
               <h4 className="font-semibold">Categories</h4>
               {categories.filter(c => c !== 'All').map(category => (
@@ -437,8 +425,6 @@ return (
                 />
               ))}
             </div>
-
-            {/* Prompts */}
             <div className="mb-4">
               <h4 className="font-semibold">Prompts</h4>
               {prompts.map(prompt => (
@@ -450,8 +436,6 @@ return (
                 />
               ))}
             </div>
-
-            {/* Tags */}
             <div className="mb-4">
               <h4 className="font-semibold">Tags</h4>
               {tags.map(tag => (
@@ -460,74 +444,18 @@ return (
                   tag={tag}
                   onEdit={editTag}
                   onDelete={deleteTag}
-                />
-              ))}
-            </div>
-
-            {/* Comments */}
-            <div className="mb-4">
-              <h4 className="font-semibold">Comments</h4>
-              {comments.map(comment => (
-                <AdminCommentControl 
-                  key={comment.id}
-                  comment={comment}
-                  onEdit={editComment}
-                  onDelete={deleteComment}
                 />
               ))}
             </div>
           </div>
         )}
-      </div> */}
-          
-    
-                      
 
-        {/* Left section */}
 
-{/*         {isAdmin && (
-          <div className="mt-8">
-            <h3 className="font-bold mb-2">Admin Controls</h3>
-            <div className="mb-4">
-              <h4 className="font-semibold">Categories</h4>
-              {categories.filter(c => c !== 'All').map(category => (
-                <AdminCategoryControl 
-                  key={category}
-                  category={category}
-                  onEdit={editCategory}
-                  onDelete={deleteCategory}
-                />
-              ))}
-            </div>
-            <div className="mb-4">
-              <h4 className="font-semibold">Prompts</h4>
-              {prompts.map(prompt => (
-                <AdminPromptControl 
-                  key={prompt.id}
-                  prompt={prompt}
-                  onEdit={editPrompt}
-                  onDelete={deletePrompt}
-                />
-              ))}
-            </div>
-            <div className="mb-4">
-              <h4 className="font-semibold">Tags</h4>
-              {tags.map(tag => (
-                <AdminTagControl 
-                  key={tag}
-                  tag={tag}
-                  onEdit={editTag}
-                  onDelete={deleteTag}
-                />
-              ))}
-            </div>
-          </div>
-        )}      */}
-{/*       </div> */}
-      {/* Temporarily remove isAdmin condition for debugging */}
-      
+        
+      </div>
 
-      {/* Right section */}              
+
+      {/* Right section */}
       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
@@ -567,7 +495,6 @@ return (
           })}
         </div>
       </div>
-    </div>
 
       {/* Edit Prompt Modal */}
       {editingPrompt && (
@@ -628,6 +555,6 @@ return (
       )}      
     </div>
   );
-};    
+};
 
 export default PromptLibrary;
