@@ -1,8 +1,9 @@
 // import { useState } from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+// import { Edit, Trash2 } from 'lucide-react';
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, X } from 'lucide-react';
+// import { PlusCircle, X } from 'lucide-react';
+import { PlusCircle, X, Edit, Trash2, LogIn, LogOut } from 'lucide-react';
 import { getCurrentUser, signOut, saveData, getData } from './database';
 
 // Add these new components here
@@ -32,6 +33,16 @@ const AdminTagControl = ({ tag, onEdit, onDelete }) => (
     <div>
       <button onClick={() => onEdit(tag)} className="mr-2 text-blue-500"><Edit size={16} /></button>
       <button onClick={() => onDelete(tag)} className="text-red-500"><Trash2 size={16} /></button>
+    </div>
+  </div>
+);
+
+const AdminCommentControl = ({ comment, onEdit, onDelete }) => (
+  <div className="flex items-center justify-between p-2 border-b">
+    <span>{comment.text.substring(0, 50)}...</span>
+    <div>
+      <button onClick={() => onEdit(comment)} className="mr-2 text-blue-500"><Edit size={16} /></button>
+      <button onClick={() => onDelete(comment)} className="text-red-500"><Trash2 size={16} /></button>
     </div>
   </div>
 );
@@ -89,7 +100,27 @@ useEffect(() => {
   };
 }, []);
 
-  // In your PromptLibrary component, add these new functions:
+  // In your PromptLibrary component, add these new functions: 
+
+  const handleLogin = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.open();
+    netlifyIdentity.on('login', (user) => {
+      netlifyIdentity.close();
+      setUser(user);
+      checkIfAdmin(user).then(setIsAdmin);
+    });
+  };
+
+  const handleLogout = () => {
+    const netlifyIdentity = window.netlifyIdentity;
+    netlifyIdentity.logout();
+    netlifyIdentity.on('logout', () => {
+      netlifyIdentity.close();
+      setUser(null);
+      setIsAdmin(false);
+    });
+  };
 
   const editCategory = async (category) => {
     const newName = prompt(`Enter new name for category "${category}":`, category);
@@ -160,48 +191,6 @@ useEffect(() => {
     }
   };
 
-  // const loadData = async () => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   try {
-  //     console.log('Starting to load data');
-  //     const data = await getData();
-  //     console.log('Loaded data:', data);
-  //     if (data && typeof data === 'object') {
-  //       setCategories(data.categories || []);
-  //       console.log('Categories set:', data.categories || []);
-  //       setPrompts(data.prompts || []);
-  //       console.log('Prompts set:', data.prompts || []);
-  //       setTags(data.tags || []);
-  //       setComment(data.comment || '');
-  //       console.log('Data successfully set in state');
-  //     } else {
-  //       throw new Error('Received invalid data format');
-  //     }
-  //   } catch (err) {
-  //     console.error('Load data error:', err);
-  //     setError(`Failed to load data: ${err.message}`);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-//   netlifyIdentity.on('init', handleUser);
-//   netlifyIdentity.on('login', handleUser);
-//   netlifyIdentity.on('logout', () => {
-//     console.log('User logged out');
-//     setUser(null);
-//     setIsLoading(false);
-//     setIsAdmin(false);
-//   });
-//   netlifyIdentity.init();
-
-//   return () => {
-//     netlifyIdentity.off('init');
-//     netlifyIdentity.off('login');
-//     netlifyIdentity.off('logout');
-//   };
-// }, [];
 
 // Add this separate useEffect to log category changes
 useEffect(() => {
@@ -325,8 +314,64 @@ const checkIfAdmin = async (user) => {
     return <div>Error: {error}</div>;
   }
   
-  return (
-    <div className="flex h-screen bg-gray-100">    
+return (
+  <div className="flex flex-col h-screen bg-gray-100">
+    {/* Top bar for login/logout */}
+    <div className="bg-white p-4 shadow-md">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Prompt Library</h1>
+        {user ? (
+          <div className="flex items-center">
+            <span className="mr-2">{user.email}</span>
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center"
+            >
+              <LogOut size={16} className="mr-2" />
+              Logout
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={handleLogin}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+          >
+            <LogIn size={16} className="mr-2" />
+            Login
+          </button>
+        )}
+      </div>
+    </div>
+
+    {/* Main content area */}
+    <div className="flex flex-1 overflow-hidden">
+      {/* Left section */}
+      <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
+        {/* ... existing left section content ... */}
+      </div>
+
+      {/* Right section */}
+      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Prompt</h2>
+          <button 
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => setEditingPrompt({
+              id: null,
+              name: '',
+              category: categories.length > 1 ? categories[1] : '',
+              content: '',
+              tags: []
+            })}
+          >
+            Prompt mới
+          </button>
+        </div>
+        {/* ... rest of the right section content ... */}
+      </div>
+    </div>
+
+      
       {/* Left section */}
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
@@ -413,7 +458,8 @@ const checkIfAdmin = async (user) => {
             <p key={savedComment.id} className="mb-2">{savedComment.text}</p>
           ))}
         </div>             
-         
+
+        {/* Left section */}
 
         {isAdmin && (
           <div className="mt-8">
@@ -460,7 +506,7 @@ const checkIfAdmin = async (user) => {
 
 
       {/* Right section */}
-      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
+{/*       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
           <button 
@@ -474,7 +520,7 @@ const checkIfAdmin = async (user) => {
             })}
           >
             Prompt mới
-          </button>
+          </button> */}
         </div>
         <div className="grid grid-cols-3 gap-4">
           {filteredPrompts.map(prompt => {
