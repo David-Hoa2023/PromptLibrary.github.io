@@ -52,6 +52,29 @@ const getLightPastelColor = () => {
   return `hsl(${hue}, 70%, 90%)`;
 };
 
+const checkIfAdmin = async (user) => {
+      try {
+        const token = await user.jwt();
+        const response = await fetch('/.netlify/functions/getUserRole', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        const { role } = await response.json();
+        return role === 'admin';
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        // Depending on your error handling strategy, you might want to throw the error here
+        // instead of returning false, so the calling code can handle it appropriately
+        return false;
+      }
+    };
+
 const PromptLibrary = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +122,16 @@ useEffect(() => {
     netlifyIdentity.off('logout');
   };
 }, []);
+// Add this useEffect for debugging
+useEffect(() => {
+console.log('isAdmin state changed:', isAdmin);
+}, [isAdmin]);
+
+useEffect(() => {
+  console.log('Categories:', categories);
+  console.log('Prompts:', prompts);
+  console.log('Tags:', tags);
+}, [categories, prompts, tags]);
 
   // In your PromptLibrary component, add these new functions: 
 
@@ -197,25 +230,7 @@ useEffect(() => {
   console.log('Categories state updated:', categories);
 }, [categories]);
 
-const checkIfAdmin = async (user) => {
-  try {
-    const response = await fetch('/.netlify/functions/getUserRole', {
-      headers: {
-        'Authorization': `Bearer ${user.token.access_token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user role');
-    }
-
-    const { role } = await response.json();
-    return role === 'admin';
-  } catch (error) {
-    console.error('Error checking admin status:', error);
-    return false;
-  }
-};
+    
   
   const saveComment = async () => {
     try {
@@ -345,35 +360,11 @@ return (
 
     {/* Main content area */}
     <div className="flex flex-1 overflow-hidden">
-      {/* Left section */}
+      {/* Left section */}      
       <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
-        {/* ... existing left section content ... */}
-      </div>
-
-      {/* Right section */}
-      <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Prompt</h2>
-          <button 
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-            onClick={() => setEditingPrompt({
-              id: null,
-              name: '',
-              category: categories.length > 1 ? categories[1] : '',
-              content: '',
-              tags: []
-            })}
-          >
-            Prompt mới
-          </button>
+        <div className="bg-yellow-100 p-2 mb-4 rounded">
+          Admin Status: {isAdmin ? 'Admin' : 'Not Admin'}
         </div>
-        {/* ... rest of the right section content ... */}
-      </div>
-    </div>
-
-      
-      {/* Left section */}
-      <div className="w-1/4 bg-white p-4 shadow-md overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Thư viện Prompt</h2>
           {categories.length > 0 ? (
             <ul className="mb-4">
@@ -461,7 +452,7 @@ return (
 
         {/* Left section */}
 
-        {isAdmin && (
+{/*         {isAdmin && (
           <div className="mt-8">
             <h3 className="font-bold mb-2">Admin Controls</h3>
             <div className="mb-4">
@@ -498,14 +489,26 @@ return (
               ))}
             </div>
           </div>
-        )}
-
-
-        
+        )}      */}
+      </div>
+      {/* Temporarily remove isAdmin condition for debugging */}
+      <div className="mt-8">
+        <h3 className="font-bold mb-2">Admin Controls (Debug)</h3>
+        <div className="mb-4">
+          <h4 className="font-semibold">Categories</h4>
+          {categories.filter(c => c !== 'All').map(category => (
+            <AdminCategoryControl 
+              key={category}
+              category={category}
+              onEdit={editCategory}
+              onDelete={deleteCategory}
+            />
+          ))}
+        </div>
+        {/* ... other admin controls ... */}
       </div>
 
-
-{/*       Right section */}
+      {/* Right section */}              
       <div className="w-3/4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Prompt</h2>
@@ -545,6 +548,7 @@ return (
           })}
         </div>
       </div>
+    </div>
 
       {/* Edit Prompt Modal */}
       {editingPrompt && (
@@ -605,6 +609,6 @@ return (
       )}      
     </div>
   );
-};
+};    
 
 export default PromptLibrary;
