@@ -21,9 +21,17 @@ exports.handler = async (event, context) => {
     const database = client.db('Cluster0');
     const collection = database.collection('promptLibrary');
     
-    console.log('Querying MongoDB with:', { userId });
-    // Changed the query to use $or to check both userId and sub fields
-    const user = await collection.findOne({ $or: [{ userId }, { sub: userId }] });
+    console.log('Querying MongoDB with expanded criteria');
+    const user = await collection.findOne({
+      $or: [
+        { userId: userId },
+        { sub: userId },
+        { _id: userId },
+        { id: userId },
+        { user_id: userId },
+        { netid: userId }
+      ]
+    });
     
     if (!user) {
       console.log('User not found in database for ID:', userId);
