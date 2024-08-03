@@ -10,6 +10,9 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
     const userId = context.clientContext.user.sub;
+    console.log('Extracted userId:', userId);
+    console.log('userId type:', typeof userId);
+    console.log('userId length:', userId.length);
     console.log('Checking role for user ID:', userId);
     
     await client.connect();
@@ -19,7 +22,8 @@ exports.handler = async (event, context) => {
     const collection = database.collection('promptLibrary');
     
     console.log('Querying MongoDB with:', { userId });
-    const user = await collection.findOne({ userId });
+    // Changed the query to use $or to check both userId and sub fields
+    const user = await collection.findOne({ $or: [{ userId }, { sub: userId }] });
     
     if (!user) {
       console.log('User not found in database for ID:', userId);
