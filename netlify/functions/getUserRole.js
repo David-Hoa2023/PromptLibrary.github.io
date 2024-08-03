@@ -14,7 +14,20 @@ exports.handler = async (event, context) => {
     await client.connect();
     console.log('Connected to MongoDB');
     
+    const adminDb = client.db().admin();
+    const dbInfo = await adminDb.listDatabases();
+    console.log('Available databases:', dbInfo.databases.map(db => db.name));
+    
     const database = client.db('promptLibrary');
+    const collections = await database.listCollections().toArray();
+    console.log('Collections in promptLibrary:', collections.map(c => c.name));
+    
+    if (collections.length === 0) {
+      console.log('No collections found in promptLibrary database');
+      return { statusCode: 500, body: JSON.stringify({ error: 'Database configuration error' }) };
+    }
+    
+    // Assuming your collection is named 'userData', adjust if different
     const collection = database.collection('userData');
     
     console.log('Querying MongoDB for user data');
@@ -22,11 +35,11 @@ exports.handler = async (event, context) => {
     
     if (userDocument) {
       console.log('Found user document:', JSON.stringify(userDocument, null, 2));
+      console.log('User role from document:', userDocument.role);
       
-      // Determine role based on document content
-      let role = userDocument.role || 'user'; // Use the role from the document, or default to 'user'
-      
+      let role = userDocument.role || 'user';
       console.log('Determined user role:', role);
+      
       return {
         statusCode: 200,
         body: JSON.stringify({ role }),
