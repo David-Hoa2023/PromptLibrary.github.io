@@ -16,31 +16,25 @@ exports.handler = async (event, context) => {
     console.log('Connected to MongoDB');
     
     const database = client.db('promptLibrary');
-    const collections = await database.listCollections().toArray();
-    console.log('Collections in promptLibrary:', collections.map(col => col.name));
+    const collection = database.collection('userData');
     
-    if (collections.length === 0) {
-      console.log('No collections found in the promptLibrary database');
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database structure issue' })
-      };
-    }
-    
-    // Assuming the first collection is the one we want
-    const collection = database.collection(collections[0].name);
-    console.log('Using collection:', collections[0].name);
-    
-    console.log('Querying MongoDB for user role');
-    const userDocuments = await collection.find({}).toArray();
-    console.log(`Found ${userDocuments.length} total documents in the collection`);
-    
-    const userDocument = userDocuments.find(doc => doc.userId === userId || doc._id === userId);
+    console.log('Querying MongoDB for user data');
+    const userDocument = await collection.findOne({ userId: userId });
     
     if (userDocument) {
       console.log('Found user document:', JSON.stringify(userDocument, null, 2));
-      const role = userDocument.role || 'user';
-      console.log('User role:', role);
+      
+      // Determine role based on document content
+      let role = 'user'; // Default role
+      
+      // Check if user has any admin-specific fields or permissions
+      if (userDocument.isAdmin || userDocument.adminPermissions) {
+        role = 'admin';
+      }
+      
+      // You can add more conditions here to determine other roles if needed
+      
+      console.log('Determined user role:', role);
       return {
         statusCode: 200,
         body: JSON.stringify({ role }),
