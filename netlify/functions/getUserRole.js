@@ -15,15 +15,21 @@ exports.handler = async (event, context) => {
     await client.connect();
     console.log('Connected to MongoDB');
     
-    const adminDb = client.db().admin();
-    const dbInfo = await adminDb.listDatabases();
-    console.log('Available databases:', dbInfo.databases.map(db => db.name));
-    
-    const database = client.db('Cluster0');
+    const database = client.db('promptLibrary');
     const collections = await database.listCollections().toArray();
-    console.log('Collections in Cluster0:', collections.map(col => col.name));
+    console.log('Collections in promptLibrary:', collections.map(col => col.name));
     
-    const collection = database.collection('promptLibrary');
+    if (collections.length === 0) {
+      console.log('No collections found in the promptLibrary database');
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Database structure issue' })
+      };
+    }
+    
+    // Assuming the first collection is the one we want
+    const collection = database.collection(collections[0].name);
+    console.log('Using collection:', collections[0].name);
     
     console.log('Querying MongoDB for user role');
     const userDocuments = await collection.find({}).toArray();
