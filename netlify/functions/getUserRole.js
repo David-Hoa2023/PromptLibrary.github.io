@@ -19,20 +19,30 @@ exports.handler = async (event, context) => {
     const collection = database.collection('promptLibrary');
     
     console.log('Querying MongoDB for user role');
-    const userRole = await collection.findOne({ userId: userId, role: { $exists: true } });
+    const userDocuments = await collection.find({ userId: userId }).toArray();
+    console.log(`Found ${userDocuments.length} documents for userId:`, userId);
     
-    if (!userRole) {
-      console.log('Role not found for user ID:', userId);
+    let role = 'user';  // Default role
+    for (const doc of userDocuments) {
+      console.log('Document:', JSON.stringify(doc, null, 2));
+      if (doc.role) {
+        role = doc.role;
+        console.log('Found role:', role);
+        break;
+      }
+    }
+    
+    if (role === 'user' && userDocuments.length > 0) {
+      console.log('No explicit role found, using default role: user');
+    } else if (userDocuments.length === 0) {
+      console.log('No documents found for user ID:', userId);
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: 'User role not found' })
+        body: JSON.stringify({ error: 'User not found' })
       };
     }
     
-    console.log('User role data from MongoDB:', JSON.stringify(userRole, null, 2));
-    
-    const role = userRole.role || 'user';
-    console.log('User role:', role);
+    console.log('Final user role:', role);
     
     return {
       statusCode: 200,
