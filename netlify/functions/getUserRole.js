@@ -10,9 +10,6 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
     const userId = context.clientContext.user.sub;
-    console.log('Extracted userId:', userId);
-    console.log('userId type:', typeof userId);
-    console.log('userId length:', userId.length);
     console.log('Checking role for user ID:', userId);
     
     await client.connect();
@@ -21,29 +18,20 @@ exports.handler = async (event, context) => {
     const database = client.db('Cluster0');
     const collection = database.collection('promptLibrary');
     
-    console.log('Querying MongoDB with expanded criteria');
-    const user = await collection.findOne({
-      $or: [
-        { userId: userId },
-        { sub: userId },
-        { _id: userId },
-        { id: userId },
-        { user_id: userId },
-        { netid: userId }
-      ]
-    });
+    console.log('Querying MongoDB for user role');
+    const userRole = await collection.findOne({ userId: userId, role: { $exists: true } });
     
-    if (!user) {
-      console.log('User not found in database for ID:', userId);
+    if (!userRole) {
+      console.log('Role not found for user ID:', userId);
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: 'User not found' })
+        body: JSON.stringify({ error: 'User role not found' })
       };
     }
     
-    console.log('User data from MongoDB:', JSON.stringify(user, null, 2));
+    console.log('User role data from MongoDB:', JSON.stringify(userRole, null, 2));
     
-    const role = user.role || 'user';
+    const role = userRole.role || 'user';
     console.log('User role:', role);
     
     return {
