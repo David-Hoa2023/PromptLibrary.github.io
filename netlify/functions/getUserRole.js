@@ -15,39 +15,37 @@ exports.handler = async (event, context) => {
     await client.connect();
     console.log('Connected to MongoDB');
     
+    const adminDb = client.db().admin();
+    const dbInfo = await adminDb.listDatabases();
+    console.log('Available databases:', dbInfo.databases.map(db => db.name));
+    
     const database = client.db('Cluster0');
+    const collections = await database.listCollections().toArray();
+    console.log('Collections in Cluster0:', collections.map(col => col.name));
+    
     const collection = database.collection('promptLibrary');
     
     console.log('Querying MongoDB for user role');
-    const userDocuments = await collection.find({ userId: userId }).toArray();
-    console.log(`Found ${userDocuments.length} documents for userId:`, userId);
+    const userDocuments = await collection.find({}).toArray();
+    console.log(`Found ${userDocuments.length} total documents in the collection`);
     
-    let role = 'user';  // Default role
-    for (const doc of userDocuments) {
-      console.log('Document:', JSON.stringify(doc, null, 2));
-      if (doc.role) {
-        role = doc.role;
-        console.log('Found role:', role);
-        break;
-      }
-    }
+    const userDocument = userDocuments.find(doc => doc.userId === userId || doc._id === userId);
     
-    if (role === 'user' && userDocuments.length > 0) {
-      console.log('No explicit role found, using default role: user');
-    } else if (userDocuments.length === 0) {
-      console.log('No documents found for user ID:', userId);
+    if (userDocument) {
+      console.log('Found user document:', JSON.stringify(userDocument, null, 2));
+      const role = userDocument.role || 'user';
+      console.log('User role:', role);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ role }),
+      };
+    } else {
+      console.log('No matching document found for user ID:', userId);
       return {
         statusCode: 404,
         body: JSON.stringify({ error: 'User not found' })
       };
     }
-    
-    console.log('Final user role:', role);
-    
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ role }),
-    };
   } catch (error) {
     console.error('Error in getUserRole:', error);
     return { 
