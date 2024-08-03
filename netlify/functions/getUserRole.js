@@ -1,5 +1,4 @@
 const { MongoClient } = require('mongodb');
-
 exports.handler = async (event, context) => {
   const client = new MongoClient(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   
@@ -25,14 +24,7 @@ exports.handler = async (event, context) => {
       console.log('Found user document:', JSON.stringify(userDocument, null, 2));
       
       // Determine role based on document content
-      let role = 'user'; // Default role
-      
-      // Check if user has any admin-specific fields or permissions
-      if (userDocument.isAdmin || userDocument.adminPermissions) {
-        role = 'admin';
-      }
-      
-      // You can add more conditions here to determine other roles if needed
+      let role = userDocument.role || 'user'; // Use the role from the document, or default to 'user'
       
       console.log('Determined user role:', role);
       return {
