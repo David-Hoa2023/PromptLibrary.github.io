@@ -15,8 +15,8 @@ exports.handler = async (event, context) => {
     await client.connect();
     console.log('Connected to MongoDB');
     
-    const database = client.db('promptLibrary');
-    const collection = database.collection('users');
+    const database = client.db('Project 0');
+    const collection = database.collection('promptLibrary');
     
     console.log('Querying MongoDB with:', { userId });
     const user = await collection.findOne({ userId });
